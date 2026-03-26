@@ -1,0 +1,12 @@
+.my-tittle{
+    color: var(--color-text-primary);
+}
+
+.my-subText{
+    color: gray
+}
+
+.my-button{
+    background-color: rgb(46, 94, 170);
+    border-color: rgb(46, 94, 170);
+}
