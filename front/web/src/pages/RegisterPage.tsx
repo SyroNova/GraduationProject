@@ -11,7 +11,7 @@ export default function LoginUser(){
             <RegisterForm onNext={() => setStep("verify")}/>
         )}
         {step === "verify" && (
-            <VerifyRegisterSMS />
+            <VerifyRegisterSMS onBack={() => setStep("register")}/>
         )}
         </div>
     )
