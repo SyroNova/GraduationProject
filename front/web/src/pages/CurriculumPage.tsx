@@ -1,4 +1,4 @@
-import default function CurriculumPage() {
+export default function CurriculumPage() {
     return (
         <>
         </>

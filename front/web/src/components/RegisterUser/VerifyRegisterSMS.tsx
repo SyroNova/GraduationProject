@@ -42,7 +42,7 @@ export default function VerifyRegisterSMS({onBack}: Props){
         // aquí iría tu lógica real de envío SMS
     };
 
-    const handleSubmit = (e: any) =>{
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) =>{
         e.preventDefault();
 
         if(!smsCode.trim()){
