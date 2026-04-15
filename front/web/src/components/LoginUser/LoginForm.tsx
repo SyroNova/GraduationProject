@@ -7,12 +7,17 @@ import logo from "../../assets/Logo.png";
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup"
 import { Formik } from "formik";
+import axios from "../../api/axios";
+import UseAuth from "../../hooks/UseAuth";
+
+const LOGIN_URL = "/auth/login/user";
 
 type Props = {
     onLost: () => void
 }
 
 export default function LoginForm({onLost}: Readonly<Props>){
+    const { setAuth } = UseAuth()
     const [icon, setIcon] = useState(true);
     const navigator = useNavigate()
 
@@ -31,7 +36,25 @@ export default function LoginForm({onLost}: Readonly<Props>){
                 </div>
                 <Formik
                     validationSchema={schema} 
-                    onSubmit={console.log}
+                    onSubmit={ async (values, {setSubmitting}) =>{
+                        try {
+                            const response = await axios.post(LOGIN_URL, JSON.stringify(values), {
+                                headers: {"Content-Type": "application/json"},
+                                withCredentials: true
+                            });
+                            const accessToken = response?.data?.accessToken;
+                            const role = response?.data?.role;
+                            console.log(accessToken, role);
+                            setAuth({ accessToken, role });
+                            navigator("/dashboard");
+                        } catch (error) {
+                            console.log(error);
+                        } finally{
+                            setSubmitting(false);
+                        }
+                    }
+
+                    }
                     initialValues={{
                         cc: "",
                         password: "",

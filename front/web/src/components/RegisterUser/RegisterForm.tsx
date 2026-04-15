@@ -6,12 +6,18 @@ import { IoEyeOff } from "react-icons/io5";
 import { IoMdEye } from "react-icons/io";
 import * as yup from "yup";
 import { Formik } from "formik";
+import axios from "../../api/axios";
+import UseSms from "../../hooks/UseSms";
+
+const REGISTER_URL = "/users/register";
 
 type Props = {
     onNext: () => void
 }
 
 export default function RegisterForm({onNext}: Readonly<Props>){
+    const { setPhone } = UseSms()
+    
     const [iconPassword, setIconPassword] = useState(true);
     const [iconPasswordConfirm, setIconPasswordConfirm] = useState(true);
     const navigator = useNavigate()
@@ -35,9 +41,29 @@ export default function RegisterForm({onNext}: Readonly<Props>){
                 </div>
                 <Formik
                     validationSchema={schema} 
-                    onSubmit={(values) =>{
-                        console.log(values)
-                        onNext()
+                    onSubmit={async (values, { setSubmitting }) =>{
+                        try {
+                            await axios.post(REGISTER_URL, JSON.stringify({
+                                cc: values.cc,
+                                typeCC: 'cc',
+                                name: values.name,
+                                phone: values.phone,
+                                password: values.password,
+                                rol: 1
+                            }), 
+                                {
+                                    headers: {"Content-Type": "application/json"},
+                                    withCredentials: true
+                                }
+                            );
+                            setPhone({phone: values.phone});
+                            onNext()
+                        } catch (error) {
+                            console.log(error);
+                        } finally{
+                            setSubmitting(false);
+                        }
+                        
                     }}
                     initialValues={{
                         name: "",

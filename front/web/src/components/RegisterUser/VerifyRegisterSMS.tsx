@@ -2,16 +2,28 @@ import { Button, Card, Form, InputGroup } from "react-bootstrap";
 import logo from "../../assets/Logo.png"
 import { useEffect, useState } from "react";
 import { IoMdArrowBack } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
+import axios from "../../api/axios";
+import { isAxiosError } from "axios";
+import UseSms from "../../hooks/UseSms";
+
+const CODE_SEND_URL = "/auth/send-code/registration";
+const CODE_VERIFY_URL = "/auth/verify-code/registration";
+
 
 type Props = {
     onBack: () => void
 }
 
-export default function VerifyRegisterSMS({onBack}: Props){
+export default function VerifyRegisterSMS({onBack}: Readonly<Props>){
+    const { phone } = UseSms()
+
     const [smsCode, setSmsCode] = useState("");
     const [sent, setSent] = useState(false);
     const [error, setError] = useState("");
     const [timeLeft, setTimeLeft] = useState(120); // 2 minutos = 120 segundos
+
+    const navigator = useNavigate();
     
     // Formato mm:ss
     const minutes = Math.floor(timeLeft / 60);
@@ -35,14 +47,28 @@ export default function VerifyRegisterSMS({onBack}: Props){
     }, [sent]);
 
 
-    const handleSend = () => {
-        setTimeLeft(120); // 🔥 reinicia contador
-        setSent(true);
-
-        // aquí iría tu lógica real de envío SMS
+    const handleSend = async () => {
+        // Recordar cambiar en el backend el sms, para que cambie a isValidated a 1
+        try {
+            const response = await axios.post(CODE_SEND_URL, JSON.stringify({ phone: 325 }), { // cambiar por phone una vez hago un registro normal y recordar hacer protected routes
+                headers: {"Content-Type": "application/json"},
+                withCredentials: true
+            });
+            const code = response?.data?.code;
+            console.log(code);
+            setTimeLeft(120); // 🔥 reinicia contador
+            setSent(true);
+        } catch (error) {
+            if(isAxiosError(error)){
+                console.log(error.response?.data?.error)
+                //setError(error.response?.data?.error)
+            } else{
+                setError("Error desconocido")
+            }
+        }
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) =>{
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
         e.preventDefault();
 
         if(!smsCode.trim()){
@@ -50,12 +76,27 @@ export default function VerifyRegisterSMS({onBack}: Props){
             return;
         }
         
-        setError("");
+        try {
+            const verify = await axios.post(CODE_VERIFY_URL, JSON.stringify({ phone, code: smsCode }), {
+                headers: {"Content-Type": "application/json"},
+                withCredentials: true
+            });
+            const message = verify?.data?.message;
+            console.log(message)
+        } catch (error) {
+            if(isAxiosError(error)){
+                setError(error.response?.data?.error)
+            } else{
+                setError("Error desconocido")
+            }
+            
+        }
+        navigator("/curriculum");
     }
 
 
     return(
-         <Card style={{ width: '22rem' }} className="d-flex align-items-center justify-content-center">
+        <Card style={{ width: '22rem' }} className="d-flex align-items-center justify-content-center">
             <Card.Body>
                 <div className="d-flex justify-content-center flex-column align-items-center">
                     <img src={logo} alt="logo" style={{ height: "180px", width: "180px", marginRight: "20px"}}  className="img-fluid" />

@@ -1,0 +1,19 @@
+.my-buttonCurriculum{
+    background-color: white;
+    border: 2px solid rgb(223, 221, 221);
+    border-radius: 5px;
+}
+
+.my-buttonCurriculum:hover{
+    background-color: rgb(243, 245, 251);
+    border: 2px solid rgb(34, 84, 176);
+}
+
+.my-buttonCurriculum:active{
+    background-color: rgb(226, 231, 248) !important;
+    border: 2px solid rgb(34, 84, 176) !important;
+}
+
+.text-curriculum{
+    color: gray;
+}
