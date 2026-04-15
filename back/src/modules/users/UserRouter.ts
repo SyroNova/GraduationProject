@@ -19,5 +19,7 @@ export default class UserRouter implements InterfaceRouter{
             validateRequest(['cc', 'typeCC', 'name', 'phone', 'password', 'rol']),
             this.userController.register.bind(this.userController)
         );
+
+        
     }
 }

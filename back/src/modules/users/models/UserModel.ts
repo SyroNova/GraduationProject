@@ -44,4 +44,16 @@ export default class UserModel{
 
         return result[0] ?? null;
     }
+
+    public async updatePassword(ccUser: string, newPasswordHash: string){
+        const query = `
+            UPDATE 
+                USER
+            SET passwordHash = ?
+            WHERE cc = ?
+        `;
+        const [result] = await pool.execute<ResultSetHeader>(query, [newPasswordHash, ccUser]);
+
+        return result.affectedRows > 0;
+    }
 }

@@ -7,7 +7,7 @@ export default class SmsModel{
     public async sendCode(phone: string, code: string){
 
         const query = `
-            INSERT INTO sms_codes (phone, code, expiresAt, createdAt)
+            INSERT INTO sms_codes (phone, code, expiresAt)
             VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))
         `
 

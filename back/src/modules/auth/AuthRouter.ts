@@ -22,7 +22,6 @@ export default class AuthRouter implements InterfaceRouter{
 
         this.router.post(
             '/refresh',
-            validateRequest(['refreshToken']),
             this.authController.refresh.bind(this.authController)
         );
 
@@ -36,6 +35,12 @@ export default class AuthRouter implements InterfaceRouter{
             '/verify-code/registration',
             validateRequest(['phone', 'code']),
             this.authController.verifyCodeRegistration.bind(this.authController)
+        )
+
+        this.router.patch(
+            '/change-password',
+            validateRequest(['cc', 'password', 'newPassword']),
+            this.authController.changePassword.bind(this.authController)
         )
     }
 }

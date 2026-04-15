@@ -8,6 +8,7 @@ import SessionModel from "./model/SessionModel.js";
 import { RefreshDTO } from "./dto/RefreshDTO.js";
 import { Session } from "./types/Session.js";
 import SmsModel from "./model/SmsModel.js";
+import { ChangePasswordDTO } from "./dto/ChangePasswordDTO.js";
 
 export default class AuthService{
 
@@ -40,7 +41,7 @@ export default class AuthService{
 
         await this.saveRefreshToken({ idUser: user.idUser, refreshToken: refreshToken, createdAt: new Date(), expiresAt: expiresAt, role: user.role })
 
-        return { accessToken, refreshToken };
+        return { accessToken, refreshToken, role: user.role };
 
     }
 
@@ -93,6 +94,28 @@ export default class AuthService{
         await this.smsModel.deleteSms(result.idSms)
 
         return true;
+    }
+
+    public async changePassword(changePasswordDTO: ChangePasswordDTO){
+        const user = await this.userModel.findByCC(changePasswordDTO.cc);
+
+        if(!user){
+            throw new Error("User not found");
+        }
+
+        const isMatch = await this.verifyPassword(changePasswordDTO.password, user.passwordHash);
+
+        if(!isMatch){
+            throw new Error("Invalid password")
+        }
+
+        const result = await this.userModel.updatePassword(user.CC.toString(), changePasswordDTO.newPassword);
+
+        if(!result){
+            throw new Error("Server error")
+        }
+
+        return result;
     }
 
     private async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {

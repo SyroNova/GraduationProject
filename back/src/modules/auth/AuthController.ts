@@ -13,8 +13,8 @@ export default class AuthController{
             const { cc, password } = req.body;
 
             const response = await this.authService.login({cc, password});
-
-            res.status(200).json({ accessToken: response.accessToken, refreshToken: response.refreshToken });
+            
+            res.status(200).cookie("refreshToken", response.refreshToken, { httpOnly: true, secure: true, sameSite: true }).json({ accessToken: response.accessToken, role: response.role});
         } catch (error) {
             next(error);
         }
@@ -26,7 +26,7 @@ export default class AuthController{
         next: NextFunction
     ): Promise<void>{
         try {
-            const { refreshToken } = req.body;
+            const { refreshToken } = req.cookies;
 
             const response = await this.authService.refreshToken({ refreshToken });
 
@@ -64,9 +64,25 @@ export default class AuthController{
 
             const response = await this.authService.verifyCode(phone, code)
 
-            res.status(200).json({ response })
+            res.status(200).json({ message: response })
         } catch (error) {
             next(error)
+        }
+    }
+
+    public async changePassword(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> {
+        try {
+            const { cc, password, newPassword } = req.body;
+
+            const response = await this.authService.changePassword({ cc, password, newPassword });
+
+            res.status(200).json({ message: response })
+        } catch (error) {
+            next(error);
         }
     }
 }
