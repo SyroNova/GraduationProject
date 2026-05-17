@@ -103,12 +103,6 @@ export default class AuthService{
             throw new Error("User not found");
         }
 
-        const isMatch = await this.verifyPassword(changePasswordDTO.password, user.passwordHash);
-
-        if(!isMatch){
-            throw new Error("Invalid password")
-        }
-
         const result = await this.userModel.updatePassword(user.CC.toString(), changePasswordDTO.newPassword);
 
         if(!result){

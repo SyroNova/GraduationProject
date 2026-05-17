@@ -39,7 +39,7 @@ export default class AuthRouter implements InterfaceRouter{
 
         this.router.patch(
             '/change-password',
-            validateRequest(['cc', 'password', 'newPassword']),
+            validateRequest(['cc', 'newPassword']),
             this.authController.changePassword.bind(this.authController)
         )
     }

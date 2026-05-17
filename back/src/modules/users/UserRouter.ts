@@ -1,7 +1,7 @@
 import { Router } from "express";
 import InterfaceRouter from "../../shared/InterfaceRouter.js";
 import UserController from "./UserController.js";
-import { validateRequest } from "../../middlewares/ValidateMiddleware.js";
+import { validateRequest, validateRequestParams } from "../../middlewares/ValidateMiddleware.js";
 
 export default class UserRouter implements InterfaceRouter{
     public router: Router;
@@ -20,6 +20,16 @@ export default class UserRouter implements InterfaceRouter{
             this.userController.register.bind(this.userController)
         );
 
-        
+        this.router.get(
+            '/get/:cc',
+            validateRequestParams(['cc']),
+            this.userController.getByCC.bind(this.userController)
+        )
+
+        this.router.patch(
+            '/change-password',
+            validateRequest(['cc', 'password', 'newPassword']),
+            this.userController.changePassword.bind(this.userController)
+        )
     }
 }

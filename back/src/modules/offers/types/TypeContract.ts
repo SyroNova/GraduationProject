@@ -1,0 +1,6 @@
+export enum TypeContract {
+    TIEMPO_COMPLETO = 'TIEMPO_COMPLETO',
+    MEDIO_TIEMPO = 'MEDIO_TIEMPO',
+    POR_HORAS = 'POR_HORAS',
+    TEMPORAL = 'TEMPORAL'
+}

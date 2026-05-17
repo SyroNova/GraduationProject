@@ -28,6 +28,36 @@ export default class UserController {
         }
     }
 
+    public async getByCC(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ){
+        try {
+            const cc = req.params.cc as string
     
+            const result = await this.userService.getByCC(cc)
+    
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    public async changePassword(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> {
+        try {
+            const { cc, password, newPassword } = req.body;
+
+            const response = await this.userService.changePassword({ cc, password, newPassword });
+
+            res.status(200).json({ message: response })
+        } catch (error) {
+            next(error);
+        }
+    }
 
 }

@@ -1,6 +1,6 @@
 import { RegisterUserDTO } from "../dto/RegisterUserDTO.js";
 import pool from "../../../config/Database.js";
-import { User } from "../types/User.js";
+import UserDB from "../types/UserDB.js";
 import { ResultSetHeader } from "mysql2";
 
 export default class UserModel{
@@ -21,7 +21,7 @@ export default class UserModel{
         const query = `
             SELECT * FROM user WHERE idUser = ?
         `;
-        const [result] = await pool.execute<User[]>(query, [id]);
+        const [result] = await pool.execute<UserDB[]>(query, [id]);
 
         return result[0] ?? null;
     }
@@ -40,7 +40,7 @@ export default class UserModel{
             INNER JOIN role r on r.idRole = u.role_idRole
             WHERE cc = ?
         `;
-        const [result] = await pool.execute<User[]>(query, [cc]);
+        const [result] = await pool.execute<UserDB[]>(query, [cc]);
 
         return result[0] ?? null;
     }

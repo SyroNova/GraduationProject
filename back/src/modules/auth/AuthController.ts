@@ -76,9 +76,9 @@ export default class AuthController{
         next: NextFunction
     ): Promise<void> {
         try {
-            const { cc, password, newPassword } = req.body;
+            const { cc, newPassword } = req.body;
 
-            const response = await this.authService.changePassword({ cc, password, newPassword });
+            const response = await this.authService.changePassword({ cc, newPassword });
 
             res.status(200).json({ message: response })
         } catch (error) {

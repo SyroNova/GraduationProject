@@ -1,7 +1,7 @@
 import { RowDataPacket } from "mysql2";
 import { TypeCC } from "./TypeCC.js";
 
-export interface User extends RowDataPacket{
+export default interface UserDB extends RowDataPacket{
     idUser: number;
     email?: string;
     name: string;
