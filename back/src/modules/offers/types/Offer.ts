@@ -1,8 +1,7 @@
 import { TypeContract } from "./TypeContract.js";
-import { DocumentOffer } from "./DocumentOffer.js";
 
 export interface Offer {
-    Company_idCompany: number
+    idCompany: number
     title: string
     salaryMin: number
     salaryMax?: number
@@ -10,5 +9,4 @@ export interface Offer {
     location: string
     contractType: TypeContract
     expireDate?: Date
-    documents?: DocumentOffer[]
 }
