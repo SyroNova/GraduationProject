@@ -20,10 +20,16 @@ export default class AuthService{
     ) {}
 
     public async login(loginDTO: LoginUserDTO){
-        const user: LoginResponseDTO | undefined = await this.userModel.findByCC(loginDTO.cc);
+        const userDB = await this.userModel.findByCC(loginDTO.cc);
 
-        if(!user){
+        if(!userDB){
             throw new Error('User not found');
+        }
+
+        const user: LoginResponseDTO = {
+            idUser: userDB.idUser,
+            passwordHash: userDB.passwordHash,
+            role: userDB.role.name.toUpperCase()
         }
 
         const isMatch = await this.verifyPassword(loginDTO.password, user.passwordHash);
