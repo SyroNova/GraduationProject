@@ -1,7 +1,7 @@
 import { Router } from "express";
 import InterfaceRouter from "../../shared/InterfaceRouter.js";
 import UserController from "./UserController.js";
-import { validateRequest, validateRequestParams } from "../../middlewares/ValidateMiddleware.js";
+import { validateRequestBody, validateRequestParams, validateUpdateRequest } from "../../middlewares/ValidateMiddleware.js";
 
 export default class UserRouter implements InterfaceRouter{
     public router: Router;
@@ -16,7 +16,7 @@ export default class UserRouter implements InterfaceRouter{
     private routes(): void{
         this.router.post(
             '/register',
-            validateRequest(['cc', 'typeCC', 'name', 'phone', 'password', 'rol']),
+            validateRequestBody(['cc', 'typeCC', 'name', 'phone', 'password', 'rol']),
             this.userController.register.bind(this.userController)
         );
 
@@ -28,8 +28,14 @@ export default class UserRouter implements InterfaceRouter{
 
         this.router.patch(
             '/change-password',
-            validateRequest(['cc', 'password', 'newPassword']),
+            validateRequestBody(['cc', 'password', 'newPassword']),
             this.userController.changePassword.bind(this.userController)
+        )
+
+        this.router.patch(
+            '/update/:id',
+            validateUpdateRequest(['email', 'name', 'phone', 'birthDate', 'actualCity', 'gender']),
+            this.userController.update.bind(this.userController)
         )
     }
 }

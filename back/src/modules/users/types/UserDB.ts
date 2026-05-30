@@ -1,5 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import { TypeCC } from "./TypeCC.js";
+import RoleDB from "./RoleDB.js";
 
 export default interface UserDB extends RowDataPacket{
     idUser: number;
@@ -12,5 +13,6 @@ export default interface UserDB extends RowDataPacket{
     birthDate?: Date;
     actualCity?: string;
     gender?: string;
-    role: string;
+    role: RoleDB;
 }
+
