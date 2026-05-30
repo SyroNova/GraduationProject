@@ -2,12 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import OfferService from "./OfferService.js";
 import UpdateOfferDTO from "./dto/UpdateOfferDTO.js";
 import HttpError from "../../shared/HttpError.js";
+import { AuthRequest } from "../../middlewares/AuthMiddleware.js";
+import AuditContextConstructor from "../../shared/AuditContextConstructor.js";
 
 export default class OfferController{
     constructor(private readonly offerService: OfferService){}
 
     public async createOffer(
-        req: Request,
+        req: AuthRequest,
         res: Response,
         next: NextFunction
     ){
@@ -21,10 +23,11 @@ export default class OfferController{
                 salaryMin, 
                 salaryMax, 
                 expireDate, 
-                documents 
             } = req.body
 
-            const response = await this.offerService.create({ idCompany, title, description, location, contractType, salaryMin, salaryMax, expireDate, documents})
+            const auditContext = AuditContextConstructor.get(req)
+
+            const response = await this.offerService.create({ idCompany, title, description, location, contractType, salaryMin, salaryMax, expireDate}, auditContext)
 
             return res.status(200).json(response)
         } catch (error: any) {
@@ -82,7 +85,7 @@ export default class OfferController{
     }
 
     public async update(
-        req: Request,
+        req: AuthRequest,
         res: Response,
         next: NextFunction
     ){
@@ -94,8 +97,14 @@ export default class OfferController{
             if(Number.isNaN(idOffer)){
                 throw new HttpError("Id invalido", 400)
             }
-    
-            const response = await this.offerService.update(data, idOffer)
+
+            const auditContext = AuditContextConstructor.get(req)
+            
+            const response = await this.offerService.update(
+                data, 
+                idOffer, 
+                auditContext
+            )
     
             return res.status(200).json(response)
         } catch (error: any) {
@@ -103,6 +112,6 @@ export default class OfferController{
                 return res.status(400).json({ message: "SalaryMin cannot be greater or equal than SalaryMax"})
             } 
             next(error)
-        }
+        } 
     }
 }

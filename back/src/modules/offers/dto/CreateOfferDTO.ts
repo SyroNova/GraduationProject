@@ -1,6 +1,4 @@
-import { DocumentOffer } from "../types/DocumentOffer.js";
-
-export default interface Offer{
+export default interface CreateOfferDTO{
     idCompany: number
     title: string
     salaryMin: number
@@ -9,5 +7,4 @@ export default interface Offer{
     location: string
     contractType: string
     expireDate?: string
-    documents?: DocumentOffer[]
 }

@@ -1,45 +1,51 @@
+import { PoolConnection } from "mysql2/promise";
 import HttpError from "../../shared/HttpError.js";
 import CreateOfferDTO from "./dto/CreateOfferDTO.js"
-import DocumentsDTO from "./dto/DocumentsDTO.js";
 import ResponseGetDTO from "./dto/ResponseGetDTO.js";
 import UpdateOfferDTO from "./dto/UpdateOfferDTO.js";
 import OfferModel from "./models/OfferModel.js";
-import { DocumentOffer } from "./types/DocumentOffer.js";
 import { TypeContract } from "./types/TypeContract.js";
+import TransactionManager from "../../shared/TransactionManager.js";
+import AuditContext  from "../../shared/interfaces/AuditContext.js";
 
 export default class OfferService{
     constructor(
-        private readonly offerModel: OfferModel
+        private readonly offerModel: OfferModel,
+        private readonly transactionManager: TransactionManager
     ){}
 
-    public async create(offerDTO: CreateOfferDTO){
-        if(!this.isTypeContract(offerDTO.contractType)){
-            throw new HttpError("Contract type is not valid", 400)
-        }
+    public async create(offerDTO: CreateOfferDTO, auditContext: AuditContext){
+        return this.transactionManager.execute(
+            async (conn) => {
+                if(!this.isTypeContract(offerDTO.contractType)){
+                    throw new HttpError("Contract type is not valid", 400)
+                }
+                if(offerDTO.salaryMax){
+                    this.verifySalary(offerDTO.salaryMin, offerDTO.salaryMax)
+                }
 
-        if(offerDTO.salaryMax){
-            this.verifySalary(offerDTO.salaryMin, offerDTO.salaryMax)
-        }
+                const { offerModel } = this.getOfferModel(conn)
+                const response = await offerModel.create({
+                    idCompany: offerDTO.idCompany,
+                    title: offerDTO.title,
+                    description: offerDTO.description,
+                    location: offerDTO.location,
+                    salaryMin: offerDTO.salaryMin,
+                    contractType: offerDTO.contractType,
+                    expireDate: offerDTO.expireDate ? this.convertDate(offerDTO.expireDate) : undefined,
+                    salaryMax: offerDTO.salaryMax ?? undefined
+                })
 
-        const response = await this.offerModel.create({
-            Company_idCompany: offerDTO.idCompany,
-            title: offerDTO.title,
-            description: offerDTO.description,
-            location: offerDTO.location,
-            salaryMin: offerDTO.salaryMin,
-            contractType: offerDTO.contractType,
-            expireDate: offerDTO.expireDate ? this.convertDate(offerDTO.expireDate) : undefined,
-            salaryMax: offerDTO.salaryMax ?? undefined,
-            documents: offerDTO.documents ? this.convertDocuments(offerDTO.documents) : undefined
-        })
+                if(response.affectedRows === 0){
+                    throw new HttpError("Error creating offer", 500)
+                }
 
-        if(response.affectedRows === 0){
-            throw new HttpError("Error creating offer", 500)
-        }
+                const offer = await this.getOfferById(response.insertId, offerModel);
 
-        const offer = await this.getOfferById(response.insertId);
-
-        return {message: "Offer created succesfully", offer: offer}
+                return {message: "Offer created succesfully", offer: offer}
+            },
+            auditContext
+        )
     }
 
     public async get(page: number, limit: number){
@@ -60,8 +66,9 @@ export default class OfferService{
         return responseDTO
     }
 
-    public async getOfferById(id: number){
-        const result = await this.offerModel.getById(id);
+    public async getOfferById(id: number, newModel?: OfferModel){
+        const db = newModel ?? this.offerModel
+        const result = await db.getById(id);
 
         if(!result){
             throw new Error("Error getting offer")
@@ -70,9 +77,9 @@ export default class OfferService{
         return result;
     }
 
-    public async update(updateDTO: UpdateOfferDTO, idOffer: number){
+    public async update(updateDTO: UpdateOfferDTO, idOffer: number, auditContext: AuditContext){
         if(updateDTO.salaryMax && updateDTO.salaryMin){
-            this.verifySalary(updateDTO.salaryMin, updateDTO.salaryMin)
+            this.verifySalary(updateDTO.salaryMin, updateDTO.salaryMax)
         }
 
         if(updateDTO.contractType){
@@ -89,24 +96,29 @@ export default class OfferService{
         
         values.push(idOffer)
 
-        const response = await this.offerModel.update(setClause, values)
+        return this.transactionManager.execute(
+            async (conn) => {
+                const { offerModel } = this.getOfferModel(conn)
 
-        if(response.affectedRows === 0){
-            throw new HttpError("Error updating offer", 500)
-        }
+                const response = await offerModel.update(setClause, values)
 
-        const offer = await this.offerModel.getById(idOffer)
+                if(response.affectedRows === 0){
+                    throw new HttpError("Error updating offer", 500)
+                }
 
-        return {message: "Updated offer succesfully", offer: offer}
+                const offer = await offerModel.getById(idOffer)
+
+                return { message: "Updated offer succesfully", offer: offer } 
+            },
+            auditContext
+        )
+
+        
 
     }
 
     private convertDate(stringDate: string): Date{
         return new Date(stringDate)
-    }
-
-    private convertDocuments(documentsDTO: DocumentsDTO): DocumentOffer[]{
-        return []
     }
 
     private isTypeContract(value: string): value is TypeContract{
@@ -116,6 +128,14 @@ export default class OfferService{
     private verifySalary(salaryMin: number, salaryMax: number){
         if(salaryMin >= salaryMax){
             throw new HttpError("Salary Min cannot be greater or equal to Salary Max", 400)
+        }
+    }
+
+    private getOfferModel(
+        conn: PoolConnection
+    ){
+        return {
+            offerModel: new OfferModel(conn)
         }
     }
 }

@@ -1,4 +1,3 @@
-import { DocumentOffer } from "../types/DocumentOffer.js"
 import { TypeContract } from "../types/TypeContract.js"
 
 export default interface UpdateOfferDTO{
@@ -9,5 +8,4 @@ export default interface UpdateOfferDTO{
     location?: string
     contractType?: TypeContract
     expireDate?: Date
-    documents?: DocumentOffer[]
 }

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import InterfaceRouter from "../../shared/InterfaceRouter.js";
-import { validateRequest, validateRequestParams, validateRequestQuery } from "../../middlewares/ValidateMiddleware.js";
+import { validateRequestBody, validateRequestParams, validateRequestQuery, validateUpdateRequest } from "../../middlewares/ValidateMiddleware.js";
 import OfferController from "./OfferController.js";
 
 export default class OfferRouter implements InterfaceRouter{
@@ -16,7 +16,7 @@ export default class OfferRouter implements InterfaceRouter{
     private routes(): void{
         this.router.post(
             '/create',
-            validateRequest(['idCompany', 'title', 'description', 'location', 'contractType', 'salaryMin']),
+            validateRequestBody(['idCompany', 'title', 'description', 'location', 'contractType', 'salaryMin']),
             this.offerController.createOffer.bind(this.offerController)
         )
 
@@ -34,6 +34,7 @@ export default class OfferRouter implements InterfaceRouter{
         
         this.router.patch(
             '/update/:id',
+            validateUpdateRequest(['title', 'salaryMin', 'salaryMax', 'description', 'location', 'contractType', 'expireDate', 'documents']),
             this.offerController.update.bind(this.offerController)
         )
     }
