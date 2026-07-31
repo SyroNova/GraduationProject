@@ -30,20 +30,18 @@ export default class OfferController{
             const response = await this.offerService.create({ idCompany, title, description, location, contractType, salaryMin, salaryMax, expireDate}, auditContext)
 
             return res.status(200).json(response)
-        } catch (error: any) {
-            if(error.code === "ER_CHECK_CONSTRAINT_VIOLATED"){
-                return res.status(400).json({ message: "SalaryMin cannot be greater or equal than SalaryMax"})
-            } 
+        } catch (error) {
             next(error)
         }
     }
 
     public async get(
-        req: Request,
+        req: AuthRequest,
         res: Response,
         next: NextFunction
     ) {
         try {
+            const idUser = req.user?.id ?? 5
             const page = Number(req.query.page)
             const limit = Number(req.query.limit)
     
@@ -55,7 +53,7 @@ export default class OfferController{
                 throw new HttpError("Limit invalid", 400)
             }
     
-            const response = await this.offerService.get(page, limit);
+            const response = await this.offerService.get(page, limit, idUser);
     
             return res.status(200).json(response)
         } catch (error) {

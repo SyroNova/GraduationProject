@@ -7,6 +7,8 @@ import OfferModel from "./models/OfferModel.js";
 import { TypeContract } from "./types/TypeContract.js";
 import TransactionManager from "../../shared/TransactionManager.js";
 import AuditContext  from "../../shared/interfaces/AuditContext.js";
+import { OfferDTO } from "./dto/OfferDTO.js";
+import { OfferDB } from "./types/OfferDB.js";
 
 export default class OfferService{
     constructor(
@@ -48,19 +50,39 @@ export default class OfferService{
         )
     }
 
-    public async get(page: number, limit: number){
+    public async get(page: number, limit: number, idUser: number){
         const offset = (page - 1) * limit
 
-        const response = await this.offerModel.get(offset, limit);
+        const response = await this.offerModel.get(offset, limit, idUser);
 
         const totalPages = Math.ceil(response.total / limit)
+
+        const resultMapped: OfferDTO[] = response.result.map((offer: OfferDB) => {
+            return {
+                idOffer: offer.idOffer,
+                company: {
+                    idCompany: offer.idCompany,
+                    companyName: offer.companyName,
+                    companyLocation: offer.companyLocation
+                },
+                title: offer.title,
+                salaryMin: offer.salaryMin,
+                salaryMax: offer.salaryMax,
+                description: offer.description,
+                location: offer.location,
+                contractType: offer.contractType,
+                expireDate: offer.expireDate,
+                createdAt: offer.createdAt,
+                isFavorite: !!offer.isFavorite
+            }
+        })
 
         const responseDTO: ResponseGetDTO = {
             page: page,
             limit: limit,
             total: response.total,
             totalPages: totalPages,
-            data: response.result
+            data: resultMapped
         }
 
         return responseDTO
@@ -74,7 +96,26 @@ export default class OfferService{
             throw new Error("Error getting offer")
         }
 
-        return result;
+        const resultMapped: OfferDTO = {
+            idOffer: result.idOffer,
+            company: {
+                idCompany: result.idCompany,
+                companyName: result.companyName,
+                companyLocation: result.companyLocation
+            },
+            title: result.title,
+            salaryMin: result.salaryMin,
+            salaryMax: result.salaryMax,
+            description: result.description,
+            location: result.location,
+            contractType: result.contractType,
+            expireDate: result.expireDate,
+            createdAt: result.createdAt,
+            isFavorite: !!result.isFavorite
+
+        }
+
+        return resultMapped;
     }
 
     public async update(updateDTO: UpdateOfferDTO, idOffer: number, auditContext: AuditContext){

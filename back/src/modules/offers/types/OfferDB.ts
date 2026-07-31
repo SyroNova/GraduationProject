@@ -3,7 +3,8 @@ import { TypeContract } from "./TypeContract.js";
 
 export interface OfferDB extends RowDataPacket{
     idOffer: number
-    idCompany: CompanyOffer
+    companyName: string,
+    companyLocation: string
     title: string
     salaryMin: number
     salaryMax?: number
@@ -11,10 +12,6 @@ export interface OfferDB extends RowDataPacket{
     location: string
     contractType: TypeContract
     expireDate?: Date
-    createdAt: Date
-}
-
-interface CompanyOffer{
-    companyName: string
-    companyLocation: string
+    createdAt: Date,
+    isFavorite?: boolean
 }
