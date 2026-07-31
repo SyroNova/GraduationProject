@@ -1,6 +1,7 @@
 export default interface WorkExperienceDTO{
-    name: string
+    position: string
     dateStart: Date
-    dateEnd: Date
-    institution: string
+    dateEnd?: Date
+    company: string
+    description?: string
 }

@@ -16,34 +16,61 @@ export default class UserController {
         next: NextFunction
     ): Promise<void> {
         try {
-            const { cc, typeCC, name, phone, password, rol } = req.body;
+            const { document, documentType, name, phone, password, rol } = req.body;
 
             const auditContext = AuditContextConstructor.get(req)
 
             const response = await this.userService.register({
-                cc,
-                typeCC,
+                document,
+                documentType,
                 name,
                 phone,
                 password,
                 rol
             }, auditContext);
 
-            res.status(201).json({ response });
+            res.status(201)
+                .cookie("refreshToken", response.refreshToken, {httpOnly: true, secure: true, sameSite: true})
+                .json({ 
+                    accessToken: response.accessToken, 
+                    role: response.role, 
+                    idUser: response.idUser, 
+                    idResume: response.idResume 
+                });
         } catch (error) {
             next(error);
         }
     }
 
-    public async getByCC(
+    public async getByDocument(
         req: Request,
         res: Response,
         next: NextFunction
     ){
         try {
-            const cc = req.params.cc as string
+            const document = req.params.document as string
     
-            const result = await this.userService.getByCC(cc)
+            const result = await this.userService.getByDocument(document)
+    
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    public async getById(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ){
+        try {
+            const idUser = Number(req.params.idUser)
+
+            if(Number.isNaN(idUser)){
+                throw new HttpError("Invalid idUser", 400)
+            }
+    
+            const result = await this.userService.getById(idUser)
     
             return res.status(200).json(result)
         } catch (error) {
@@ -58,9 +85,9 @@ export default class UserController {
     ): Promise<void> {
         const conn = await AuditConnection.get(req)
         try {
-            const { cc, password, newPassword } = req.body;
+            const { document, password, newPassword } = req.body;
 
-            const response = await this.userService.changePassword({ cc, password, newPassword }, conn);
+            const response = await this.userService.changePassword({ document, password, newPassword }, conn);
 
             res.status(200).json({ message: response })
         } catch (error) {
@@ -94,6 +121,85 @@ export default class UserController {
 
             return res.status(200).json(response)
         } catch (error) {
+            next(error)
+        }
+    }
+
+    public async addFavoriteOffer(
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction
+    ){
+        try {
+            const idUser = req.user?.id ?? 5
+
+            const idOffer = Number(req.params.idOffer)
+
+            if(Number.isNaN(idOffer)){
+                throw new HttpError("Invalid idOffer", 400)
+            }
+
+            if(!idUser){
+                throw new HttpError("Invalid user", 400)
+            }
+
+            const response = await this.userService.addFavoriteOffer(idUser, idOffer)
+
+            res.status(200).json(response)
+        } catch (error: any) {
+            next(error)
+        }
+    }
+
+    public async getFavorites(
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const idUser = req.user?.id ?? 5
+            const page = Number(req.query.page)
+            const limit = Number(req.query.limit)
+    
+            if(Number.isNaN(page) || page === 0){
+                throw new HttpError("Page invalid", 400)
+            }
+    
+            if(Number.isNaN(limit)){
+                throw new HttpError("Limit invalid", 400)
+            }
+    
+            const response = await this.userService.getFavorites(page, limit, idUser);
+    
+            return res.status(200).json(response)
+        } catch (error) {
+            next(error)
+        }
+    }
+    
+
+    public async deleteFavoriteOffer(
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction
+    ){
+        try {
+            const idUser = req.user?.id ?? 5
+
+            const idOffer = Number(req.params.idOffer)
+
+            if(Number.isNaN(idOffer)){
+                throw new HttpError("Invalid idOffer", 400)
+            }
+
+            if(!idUser){
+                throw new HttpError("Invalid user", 400)
+            }
+
+            const response = await this.userService.deleteFavoriteOffer(idUser, idOffer)
+
+            res.status(200).json(response)
+        } catch (error: any) {
             next(error)
         }
     }

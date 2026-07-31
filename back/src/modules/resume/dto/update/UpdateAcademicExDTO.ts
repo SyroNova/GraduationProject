@@ -1,7 +1,7 @@
 export default interface UpdateAcademicExDTO{
     position?: string
-    company?: string
+    institution?: string
     dateStart?: Date
     dateEnd?: Date
-    resume?: string
+    description?: string
 }

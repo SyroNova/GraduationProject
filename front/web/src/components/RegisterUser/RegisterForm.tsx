@@ -8,6 +8,9 @@ import * as yup from "yup";
 import { Formik } from "formik";
 import axios from "../../api/axios";
 import UseSms from "../../hooks/UseSms";
+import UseAuth from "../../hooks/UseAuth";
+import UseResume from "../../hooks/UseResume";
+import { isAxiosError } from "axios";
 
 const REGISTER_URL = "/users/register";
 
@@ -17,6 +20,8 @@ type Props = {
 
 export default function RegisterForm({onNext}: Readonly<Props>){
     const { setPhone } = UseSms()
+    const { setAuth } = UseAuth()
+    const { setResume } = UseResume()
     
     const [iconPassword, setIconPassword] = useState(true);
     const [iconPasswordConfirm, setIconPasswordConfirm] = useState(true);
@@ -25,7 +30,8 @@ export default function RegisterForm({onNext}: Readonly<Props>){
 
     const schema = yup.object().shape({
         name: yup.string().required("El nombre es requerido"),
-        cc: yup.string().required("La cedula es requerida"),
+        document: yup.string().required("La cedula es requerida"),
+        documentType: yup.string().required("El tipo de cedula es requerido"),
         phone: yup.string().required("El telefono es requerido"),
         password: yup.string().required("La contraseña es requerida"),
         verifyPassword: yup.string().oneOf([yup.ref("password")], "Las contraseñas no coinciden").required("Requerido"),
@@ -35,7 +41,7 @@ export default function RegisterForm({onNext}: Readonly<Props>){
         <Card style={{ width: '22rem' }} className="d-flex align-items-center justify-content-center">
             <Card.Body>
                 <div className="d-flex justify-content-center flex-column align-items-center">
-                    <img src={logo} alt="logo" style={{ height: "180px", width: "180px", marginRight: "20px"}}  className="img-fluid" />
+                    <img src={logo} alt="logo" style={{ height: "170px", width: "170px", marginRight: "20px"}}  className="img-fluid" />
                     <p className="fw-bold fs-3 mb-0" style={{color: "var(--color-text-primary)"}}>UrNextJob</p>
                     <p className="fw-bold mb-0" style={{color: "var(--color-text-secondary)"}}>Usuario</p>
                 </div>
@@ -43,9 +49,9 @@ export default function RegisterForm({onNext}: Readonly<Props>){
                     validationSchema={schema} 
                     onSubmit={async (values, { setSubmitting }) =>{
                         try {
-                            await axios.post(REGISTER_URL, JSON.stringify({
-                                cc: values.cc,
-                                typeCC: 'cc',
+                            const response = await axios.post(REGISTER_URL, JSON.stringify({
+                                document: values.document,
+                                documentType: values.documentType,
                                 name: values.name,
                                 phone: values.phone,
                                 password: values.password,
@@ -57,108 +63,155 @@ export default function RegisterForm({onNext}: Readonly<Props>){
                                 }
                             );
                             setPhone({phone: values.phone});
+
+                            const accessToken = response?.data?.accessToken;
+                            const role = response?.data?.role;
+                            const userId = response?.data?.idUser;
+                            const resumeId = response?.data?.idResume;
+                            setAuth({ accessToken, role, id: userId, resumeId })
+
+                            const idResume = response?.data?.idResume
+                            setResume(prev => ({
+                                ...(prev ?? {
+                                    idResume: idResume,
+                                    professionalProfile: {
+                                        title: "",
+                                        resume: ""
+                                    },
+                                    academicExperience: [],
+                                    workExperience: [],
+                                    skills: []
+                                })
+                            }))
+
                             onNext()
                         } catch (error) {
+                            if(isAxiosError(error)){
+                                console.log(error.response?.data);
+                            }
                             console.log(error);
                         } finally{
                             setSubmitting(false);
                         }
-                        
                     }}
                     initialValues={{
                         name: "",
-                        cc: "",
+                        document: "",
+                        documentType: "",
                         phone: "",
                         password: "",
                         verifyPassword: ""
                     }}
                 >
-                {({handleSubmit, handleChange, handleBlur, values, touched, errors, isValid}) => (
-                <Form noValidate onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3" controlId="name">
-                        <Form.Label className="fw-bold">Nombre</Form.Label>
-                        <Form.Control 
-                            type="text" 
-                            name="name" 
-                            value={values.name} 
-                            onChange={handleChange} 
-                            onBlur={handleBlur} 
-                            isInvalid={touched.name && !!errors.name}
-                        />
-                        <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="cc">
-                        <Form.Label className="fw-bold">Cedula</Form.Label>
-                        <Form.Control 
-                            type="text" 
-                            placeholder="CC"
-                            name="cc" 
-                            value={values.cc} 
-                            onChange={handleChange} 
-                            onBlur={handleBlur} 
-                            isInvalid={touched.cc && !!errors.cc}
-                        />
-                        <Form.Control.Feedback type="invalid">{errors.cc}</Form.Control.Feedback>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="phone">
-                        <Form.Label className="fw-bold">Numero de telefono</Form.Label>
-                        <Form.Control 
-                            type="tel" 
-                            name="phone" 
-                            value={values.phone} 
-                            onChange={handleChange} 
-                            onBlur={handleBlur} 
-                            isInvalid={touched.phone && !!errors.phone}
-                        />
-                        <Form.Control.Feedback type="invalid">{errors.phone}</Form.Control.Feedback>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="password">
-                        <Form.Label className="fw-bold">Contraseña</Form.Label>
-                        <InputGroup hasValidation>
-                            <Form.Control 
-                                type={iconPassword ? "password" : "text"} 
-                                placeholder="Contraseña..." 
-                                name="password" 
-                                value={values.password} 
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                isInvalid={touched.password && !!errors.password}
-                            />
-                            <Button type="button" id="showPassword" onClick={() => setIconPassword(!iconPassword)}>{(iconPassword ? <IoEyeOff color="black" /> : <IoMdEye color="black" /> )}</Button>
-                        </InputGroup>
-                        <Form.Control.Feedback 
-                            type="invalid" 
-                            style={{ display: "block" }}
-                        >
-                            {touched.password && errors.password ? errors.password : ""}
-                        </Form.Control.Feedback>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="verifyPassword">
-                        <Form.Label className="fw-bold">Confirmar contraseña</Form.Label>
-                        <InputGroup hasValidation>
-                            <Form.Control 
-                                type={iconPasswordConfirm ? "password" : "text"} 
-                                placeholder="Confirme contraseña" 
-                                name="verifyPassword" 
-                                value={values.verifyPassword} 
-                                onChange={handleChange} 
-                                onBlur={handleBlur}
-                                isInvalid={touched.verifyPassword && !!errors.verifyPassword}
-                            />
-                            <Button type="button" id="showPassword" onClick={() => setIconPasswordConfirm(!iconPasswordConfirm)}>{(iconPasswordConfirm ? <IoEyeOff color="black" /> : <IoMdEye color="black" /> )}</Button>
-                        </InputGroup>
-                        <Form.Control.Feedback 
-                            type="invalid" 
-                            style={{ display: "block" }}
-                        >
-                            {touched.verifyPassword && errors.verifyPassword ? errors.verifyPassword : ""}
-                        </Form.Control.Feedback>
-                    </Form.Group>
-                    <Button type="submit" className="btn btn-primary w-100" disabled={!isValid}>Registrarse</Button>
-                </Form>
-                )}
-                
-                
+                {({handleSubmit, handleChange, handleBlur, values, touched, errors, isValid}) => {
+                    const documentError =
+                            (touched.documentType || touched.document)
+                                ? errors.documentType || errors.document
+                                : null;
+                    return (
+                        <Form noValidate onSubmit={handleSubmit}>
+                            <Form.Group className="mb-3" controlId="name">
+                                <Form.Label className="fw-bold">Nombre</Form.Label>
+                                <Form.Control 
+                                    type="text" 
+                                    name="name" 
+                                    value={values.name} 
+                                    onChange={handleChange} 
+                                    onBlur={handleBlur} 
+                                    isInvalid={touched.name && !!errors.name}
+                                />
+                                <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="document">
+                                <Form.Label className="fw-bold">Documento</Form.Label>
+                                <InputGroup>
+                                    <Form.Select 
+                                        name="documentType"
+                                        value={values.documentType}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.documentType && !!errors.documentType}
+                                        style={{ maxWidth: '80px' }}
+                                    >
+                                        <option value="">Tipo</option>
+                                        <option value="CC">CC</option>
+                                        <option value="TI">TI</option>
+                                        <option value="CE">CE</option>
+                                    </Form.Select>
+                                    <Form.Control
+                                        type="text"
+                                        name="document"
+                                        value={values.document}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.document && !!errors.document}
+                                        placeholder="Número de documento"
+                                    />
+                                </InputGroup>
+                                {documentError && (
+                                    <div className="text-danger mt-1">
+                                        {documentError}
+                                    </div>
+                                )}
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="phone">
+                                <Form.Label className="fw-bold">Numero de telefono</Form.Label>
+                                <Form.Control 
+                                    type="tel" 
+                                    name="phone" 
+                                    value={values.phone} 
+                                    onChange={handleChange} 
+                                    onBlur={handleBlur} 
+                                    isInvalid={touched.phone && !!errors.phone}
+                                />
+                                <Form.Control.Feedback type="invalid">{errors.phone}</Form.Control.Feedback>
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="password">
+                                <Form.Label className="fw-bold">Contraseña</Form.Label>
+                                <InputGroup hasValidation>
+                                    <Form.Control 
+                                        type={iconPassword ? "password" : "text"} 
+                                        placeholder="Contraseña..." 
+                                        name="password" 
+                                        value={values.password} 
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.password && !!errors.password}
+                                    />
+                                    <Button type="button" id="showPassword" onClick={() => setIconPassword(!iconPassword)}>{(iconPassword ? <IoEyeOff color="black" /> : <IoMdEye color="black" /> )}</Button>
+                                </InputGroup>
+                                <Form.Control.Feedback 
+                                    type="invalid" 
+                                    style={{ display: "block" }}
+                                >
+                                    {touched.password && errors.password ? errors.password : ""}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="verifyPassword">
+                                <Form.Label className="fw-bold">Confirmar contraseña</Form.Label>
+                                <InputGroup hasValidation>
+                                    <Form.Control 
+                                        type={iconPasswordConfirm ? "password" : "text"} 
+                                        placeholder="Confirme contraseña" 
+                                        name="verifyPassword" 
+                                        value={values.verifyPassword} 
+                                        onChange={handleChange} 
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.verifyPassword && !!errors.verifyPassword}
+                                    />
+                                    <Button type="button" id="showPassword" onClick={() => setIconPasswordConfirm(!iconPasswordConfirm)}>{(iconPasswordConfirm ? <IoEyeOff color="black" /> : <IoMdEye color="black" /> )}</Button>
+                                </InputGroup>
+                                <Form.Control.Feedback 
+                                    type="invalid" 
+                                    style={{ display: "block" }}
+                                >
+                                    {touched.verifyPassword && errors.verifyPassword ? errors.verifyPassword : ""}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                            <Button type="submit" className="btn btn-primary w-100" disabled={!isValid}>Registrarse</Button>
+                        </Form>
+                    )
+                }}  
                 </Formik>
                 <div className="d-flex align-items-center justify-content-center gap-2">
                     <p className="mb-0">¿Ya tienes una cuenta?</p>

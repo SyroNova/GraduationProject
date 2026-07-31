@@ -11,17 +11,17 @@ export default class AcademicExperienceModel{
 
     public async create(idResume: number, academicExperience: AcademicExperienceDTO){
         const query = `
-            INSERT INTO academic_experience (idResume, position, company, dateStart, dateEnd, resume)
+            INSERT INTO academic_experience (idResume, position, company, dateStart, dateEnd, description)
             VALUES (?, ?, ?, ?, ?, ?)
         `
 
         const values = [
             idResume,
-            academicExperience.position,
-            academicExperience.company,
+            academicExperience.degree,
+            academicExperience.institution,
             academicExperience.dateStart,
             academicExperience.dateEnd ?? null,
-            academicExperience.resume ?? null
+            academicExperience.description ?? null
         ]
 
         const [result] = await this.db.execute<ResultSetHeader>(query, values)

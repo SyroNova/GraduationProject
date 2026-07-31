@@ -1,9 +1,9 @@
-import { OfferDB } from "../types/OfferDB.js"
+import { OfferDTO } from "./OfferDTO.js"
 
 export default interface ResponseGetDTO{
     page: number
     limit: number
     total: number
     totalPages: number
-    data: OfferDB[]
+    data: OfferDTO[]
 }

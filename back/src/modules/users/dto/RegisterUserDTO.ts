@@ -1,6 +1,6 @@
 export interface RegisterUserDTO {
-    cc: string;
-    typeCC: string;
+    document: string;
+    documentType: string;
     name: string;
     phone: string;
     password: string;

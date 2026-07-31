@@ -9,14 +9,15 @@ export default class SkillsModel{
         private readonly db: Pool | PoolConnection = pool
     ) {}
 
-    public async create(skills: SkillsDTO){
+    public async create(skills: SkillsDTO, idResume: number){
         const query = `
-            INSERT INTO skills (name, level)
-            VALUES (?, ?)
+            INSERT INTO resume_skill (idResume, idSkill, level)
+            VALUES (?, ?, ?)
         `
 
         const values = [
-            skills.name,
+            idResume,
+            skills.idSkill,
             skills.level
         ]
 
@@ -27,9 +28,9 @@ export default class SkillsModel{
 
     public async update(setClause: string, values: string[]){
         const query = `
-            UPDATE skills 
+            UPDATE resume_skill 
             SET ${setClause}
-            WHERE idSkills = ?
+            WHERE idResume = ? AND idSkill = ?
         `
 
         const [result] = await this.db.execute<ResultSetHeader>(query, values)
@@ -37,25 +38,47 @@ export default class SkillsModel{
         return result
     }
 
-    public async get(id: number){
+    public async getAll(id: number){
         const query = `
-            SELECT *
-            FROM skills
-            WHERE idSkills = ?
+            SELECT 
+                rs.idSkill,
+                rs.idResume,
+                s.name,
+                rs.level
+            FROM resume_skill rs
+            INNER JOIN skills s ON rs.idSkill = s.idSkill
+            WHERE rs.idResume = ?
         `
 
         const [result] = await this.db.execute<SkillsDB[]>(query, [id])
 
+        return result
+    }
+
+    public async getOne(idResume: number, idSkill: string){
+        const query = `
+            SELECT 
+                rs.idSkill,
+                rs.idResume,
+                s.name,
+                rs.level
+            FROM resume_skill rs
+            INNER JOIN skills s ON rs.idSkill = s.idSkill
+            WHERE rs.idResume = ? AND rs.idSkill = ?
+        `
+
+        const [result] = await this.db.execute<SkillsDB[]>(query, [idResume, idSkill])
+
         return result[0] ?? null
     }
 
-    public async delete(id: number){
+    public async delete(idResume: number, idSkill: string){
         const query = `
-            DELETE FROM skills
-            WHERE idSkills = ?
+            DELETE FROM resume_skill
+            WHERE idResume = ? AND idSkill = ?
         `
 
-        const [result] = await this.db.execute<ResultSetHeader>(query, [id])
+        const [result] = await this.db.execute<ResultSetHeader>(query, [idResume, idSkill])
 
         return result
     }

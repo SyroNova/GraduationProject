@@ -14,10 +14,10 @@ export default class UserModel{
     public async create(user: RegisterUserDTO) {
         
         const query = `
-            INSERT INTO user (cc, typeCC, name, phone, passwordHash, idRole)
+            INSERT INTO user (document, documentType, name, phone, passwordHash, idRole)
             VALUES (?, ?, ?, ?, ?, ?)
         `;
-        const values = [user.cc, user.typeCC, user.name, user.phone, user.password, user.rol];
+        const values = [user.document, user.documentType, user.name, user.phone, user.password, user.rol];
         const [result] = await this.db.execute<ResultSetHeader>(query, values);
 
         return result;
@@ -25,40 +25,54 @@ export default class UserModel{
 
     public async findById(id: number) {
         const query = `
-            SELECT * FROM user WHERE idUser = ?
+            SELECT 
+                u.idUser,
+                u.name,
+                u.document,
+                u.documentType,
+                u.passwordHash,
+                u.phone,
+                u.email,
+                u.birthDate,
+                u.actualCity,
+                u.gender,
+                r.name role
+            FROM user u
+            INNER JOIN role r on r.idRole = u.idRole
+            WHERE u.idUser = ?
         `;
-        const [result] = await pool.execute<UserDB[]>(query, [id]);
+        const [result] = await this.db.execute<UserDB[]>(query, [id]);
 
         return result[0] ?? null;
     }
 
-    public async findByCC(cc: string) {
+    public async findByDocument(document: string) {
         const query = `
             SELECT 
                 u.idUser,
                 u.name,
-                u.cc,
-                u.typeCC,
+                u.document,
+                u.documentType,
                 u.passwordHash,
                 u.phone,
                 r.name role
             FROM user u
             INNER JOIN role r on r.idRole = u.idRole
-            WHERE cc = ?
+            WHERE u.document = ?
         `;
-        const [result] = await pool.execute<UserDB[]>(query, [cc]);
+        const [result] = await this.db.execute<UserDB[]>(query, [document]);
 
         return result[0] ?? null;
     }
 
-    public async updatePassword(ccUser: string, newPasswordHash: string){
+    public async updatePassword(document: string, newPasswordHash: string){
         const query = `
             UPDATE 
                 USER
             SET passwordHash = ?
-            WHERE cc = ?
+            WHERE document = ?
         `;
-        const [result] = await this.db.execute<ResultSetHeader>(query, [newPasswordHash, ccUser]);
+        const [result] = await this.db.execute<ResultSetHeader>(query, [newPasswordHash, document]);
 
         return result.affectedRows > 0;
     }
@@ -71,7 +85,7 @@ export default class UserModel{
             WHERE idRole = ?
         `
 
-        const [result] = await pool.execute<RoleDB[]>(query, [role])
+        const [result] = await this.db.execute<RoleDB[]>(query, [role])
 
         return result[0] ?? null;
     }

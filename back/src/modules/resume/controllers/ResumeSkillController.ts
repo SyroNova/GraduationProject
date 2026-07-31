@@ -20,6 +20,10 @@ export default class ResumeSkillController{
                 throw new HttpError("Invalid resume ID", 400)
             }
 
+            if(data.idSkill.length !== 36){
+                throw new HttpError("Invalid skill ID", 400)
+            }
+
             const result = await this.skillService.addSkill(idResume, data)
 
             res.status(201).json(result)
@@ -30,19 +34,19 @@ export default class ResumeSkillController{
         }
     }
 
-    public async getSkill(
+    public async getSkills(
         req: Request,
         res: Response,
         next: NextFunction
     ) {
         try {
-            const idSkill = Number(req.params.id)
+            const idResume = Number(req.params.id)
 
-            if(Number.isNaN(idSkill)) {
+            if(Number.isNaN(idResume)) {
                 throw new HttpError("Invalid skill ID", 400)
             }
 
-            const result = await this.skillService.getSkill(idSkill)
+            const result = await this.skillService.getSkills(idResume)
 
             res.status(200).json(result)
             return;
@@ -57,14 +61,19 @@ export default class ResumeSkillController{
         next: NextFunction
     ) {
         try {
-            const idSkill = Number(req.params.id)
+            const idResume = Number(req.params.id)
+            const idSkill = String(req.params.idSkill)
             const data: UpdateSkillDTO = req.body
 
-            if(Number.isNaN(idSkill)) {
+            if(Number.isNaN(idResume)) {
+                throw new HttpError("Invalid resume ID", 400)
+            }
+
+            if(idSkill.length !== 36){
                 throw new HttpError("Invalid skill ID", 400)
             }
 
-            const result = await this.skillService.updateSkill(idSkill, data)
+            const result = await this.skillService.updateSkill(idResume, idSkill, data)
 
             res.status(200).json(result)
             return;
@@ -79,13 +88,18 @@ export default class ResumeSkillController{
         next: NextFunction
     ) {
         try {
-            const idSkill = Number(req.params.id)
+            const idResume = Number(req.params.id)
+            const idSkill = String(req.params.idSkill)
 
-            if(Number.isNaN(idSkill)) {
+            if(Number.isNaN(idResume)) {
                 throw new HttpError("Invalid skill ID", 400)
             }
 
-            const result = await this.skillService.deleteSkill(idSkill)
+            if(idSkill.length !== 36){
+                throw new HttpError("Invalid skill ID", 400)
+            }
+
+            const result = await this.skillService.deleteSkill(idResume, idSkill)
 
             res.status(200).json(result)
             return;

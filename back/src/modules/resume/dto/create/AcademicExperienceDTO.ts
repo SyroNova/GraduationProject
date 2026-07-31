@@ -1,7 +1,7 @@
 export default interface AcademicExperienceDTO{
-    position: string
-    company: string
+    degree: string
+    institution: string
     dateStart: Date
     dateEnd?: Date
-    resume?: string
+    description?: string
 }

@@ -16,26 +16,49 @@ export default class UserRouter implements InterfaceRouter{
     private routes(): void{
         this.router.post(
             '/register',
-            validateRequestBody(['cc', 'typeCC', 'name', 'phone', 'password', 'rol']),
+            validateRequestBody(['document', 'documentType', 'name', 'phone', 'password', 'rol']),
             this.userController.register.bind(this.userController)
         );
 
         this.router.get(
-            '/get/:cc',
-            validateRequestParams(['cc']),
-            this.userController.getByCC.bind(this.userController)
+            '/get/document/:document',
+            validateRequestParams(['document']),
+            this.userController.getByDocument.bind(this.userController)
+        )
+
+        this.router.get(
+            '/get/id/:idUser',
+            validateRequestParams(['idUser']),
+            this.userController.getById.bind(this.userController)
         )
 
         this.router.patch(
             '/change-password',
-            validateRequestBody(['cc', 'password', 'newPassword']),
+            validateRequestBody(['document', 'password', 'newPassword']),
             this.userController.changePassword.bind(this.userController)
         )
 
         this.router.patch(
             '/update/:id',
-            validateUpdateRequest(['email', 'name', 'phone', 'birthDate', 'actualCity', 'gender']),
+            validateUpdateRequest(['email', 'name', 'phone', 'birthDate', 'actualCity', 'gender', 'document', 'documentType']),
             this.userController.update.bind(this.userController)
+        )
+
+        this.router.post(
+            '/favorite/:idOffer',
+            validateRequestParams(['idOffer']),
+            this.userController.addFavoriteOffer.bind(this.userController)
+        )
+
+        this.router.get(
+            '/favorites',
+            this.userController.getFavorites.bind(this.userController)
+        )
+
+        this.router.delete(
+            '/favorite/:idOffer',
+            validateRequestParams(['idOffer']),
+            this.userController.deleteFavoriteOffer.bind(this.userController)
         )
     }
 }

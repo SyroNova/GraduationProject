@@ -1,18 +1,18 @@
 import { RowDataPacket } from "mysql2";
-import { TypeCC } from "./TypeCC.js";
+import { DocumentType } from "./DocumentType.js";
 import RoleDB from "./RoleDB.js";
 
 export default interface UserDB extends RowDataPacket{
     idUser: number;
     email?: string;
     name: string;
-    CC: number;
-    typeCC: TypeCC;
+    document: string;
+    documentType: DocumentType;
     passwordHash: string;
     phone: string;
     birthDate?: Date;
     actualCity?: string;
     gender?: string;
-    role: RoleDB;
+    role: RoleDB | string;
 }
 

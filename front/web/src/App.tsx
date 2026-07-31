@@ -6,11 +6,12 @@ import LoginUser from "./pages/LoginUser"
 import RegisterPage from "./pages/RegisterPage"
 import CurriculumPage from "./pages/CurriculumPage"
 import Dashboard from "./pages/Dashboard"
-import DashboardHome from "./components/Dashboard/DashboardHome"
-import DashboardSaves from "./components/Dashboard/DashboardSaves"
-import DashboardCurriculum from "./components/Dashboard/DashboardCurriculum"
-import DashboardNotifications from "./components/Dashboard/DashboardNotifications"
-import DashboardHelp from "./components/Dashboard/DashboardHelp"
+import DashboardHome from "./components/DashboardUser/DashboardHome"
+import DashboardSaves from "./components/DashboardUser/DashboardSaves"
+import DashboardCurriculum from "./components/DashboardUser/DashboardCurriculum"
+import DashboardNotifications from "./components/DashboardUser/DashboardNotifications"
+import DashboardHelp from "./components/DashboardUser/DashboardHelp"
+import DashboardOffer from "./components/DashboardUser/DashboardOffer"
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <Route path="/curriculum" element={<CurriculumPage />} />
       <Route path="/dashboard" element={<Dashboard />}>
         <Route path="home" element={<DashboardHome />}/>
+        <Route path="offer/:id" element={<DashboardOffer />}/>
         <Route path="curriculum" element={<DashboardCurriculum />}/>
         <Route path="saves" element={<DashboardSaves />}/>
         <Route path="notifications" element={<DashboardNotifications />}/>

@@ -22,7 +22,7 @@ export default function LoginForm({onLost}: Readonly<Props>){
     const navigator = useNavigate()
 
     const schema = yup.object().shape({
-        cc: yup.string().required("La cedula es requerida"),
+        document: yup.string().required("La cedula es requerida"),
         password: yup.string().required("La contraseña es requerida"),
     })
 
@@ -44,8 +44,9 @@ export default function LoginForm({onLost}: Readonly<Props>){
                             });
                             const accessToken = response?.data?.accessToken;
                             const role = response?.data?.role;
-                            console.log(accessToken, role);
-                            setAuth({ accessToken, role });
+                            const userId = response?.data?.idUser;
+                            console.log(accessToken, role, userId);
+                            setAuth({ accessToken, role, id: userId });
                             navigator("/dashboard");
                         } catch (error) {
                             console.log(error);
@@ -53,10 +54,9 @@ export default function LoginForm({onLost}: Readonly<Props>){
                             setSubmitting(false);
                         }
                     }
-
                     }
                     initialValues={{
-                        cc: "",
+                        document: "",
                         password: "",
                     }}
                 >{({handleSubmit, handleChange, handleBlur, values, touched, errors, isValid}) => (
@@ -67,12 +67,12 @@ export default function LoginForm({onLost}: Readonly<Props>){
                                 type="text" 
                                 placeholder="CC"
                                 name="cc"
-                                value={values.cc}
+                                value={values.document}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                isInvalid={touched.cc && !! errors.cc}
+                                isInvalid={touched.document && !! errors.document}
                             />
-                            <Form.Control.Feedback type="invalid">{errors.cc}</Form.Control.Feedback>
+                            <Form.Control.Feedback type="invalid">{errors.document}</Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">Contraseña</Form.Label>

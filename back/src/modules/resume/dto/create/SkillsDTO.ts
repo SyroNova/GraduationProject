@@ -1,4 +1,4 @@
 export default interface SkillsDTO{
-    name: string
+    idSkill: string
     level: string
 }

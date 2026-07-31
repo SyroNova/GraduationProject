@@ -1,0 +1,21 @@
+.faq-accordion .accordion-button:not(.collapsed) {
+    background-color: white;
+    color: inherit;
+}
+
+.faq-accordion .accordion-button:focus {
+    box-shadow: none;
+}
+
+.faq-accordion .accordion-button,
+.faq-accordion .accordion-button:not(.collapsed) {
+    font-weight: 500;
+    color: var(--color-text-primary);
+}
+
+.icon-check{
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: rgb(234, 246, 245);
+}

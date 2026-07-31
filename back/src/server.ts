@@ -2,6 +2,7 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import InterfaceRouter from './shared/InterfaceRouter.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import compression from "compression"
 
 export default class Server{
     private readonly app: Application;
@@ -24,6 +25,7 @@ export default class Server{
             credentials: true
         }))
         this.app.use(cookieParser());
+        this.app.use(compression())
     }
 
     private errorMiddleware(): void{

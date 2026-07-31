@@ -5,7 +5,7 @@ import WorkExperienceDTO from "./WorkExperienceDTO.js";
 
 export default interface ResumeDTO{
     professionalProfile: ProfessionalProfileDTO
-    workExperience: WorkExperienceDTO
-    academicExperience: AcademicExperienceDTO
+    workExperience: WorkExperienceDTO[]
+    academicExperience: AcademicExperienceDTO[]
     skills: SkillsDTO[]
 }
