@@ -16,7 +16,7 @@ export default class AuthRouter implements InterfaceRouter{
     private routes(): void{
         this.router.post(
             '/login/user',
-            validateRequestBody(['cc', 'password']),
+            validateRequestBody(['document', 'password']),
             this.authController.login.bind(this.authController)
         );
 
@@ -39,7 +39,7 @@ export default class AuthRouter implements InterfaceRouter{
 
         this.router.patch(
             '/change-password',
-            validateRequestBody(['cc', 'newPassword']),
+            validateRequestBody(['document', 'newPassword']),
             this.authController.changePassword.bind(this.authController)
         )
     }

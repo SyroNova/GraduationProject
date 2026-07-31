@@ -1,9 +1,8 @@
 import UserModel from "../users/models/UserModel.js";
-import TokenService from "./TokenService.js";
+import TokenService from "../../shared/TokenService.js";
 import { LoginUserDTO } from "./dto/LoginUserDTO.js";
 import bcrypt from "bcrypt";
 import { LoginResponseDTO } from "./dto/LoginResponseDTO.js";
-import { SessionDTO } from "./dto/SessionDTO.js";
 import SessionModel from "./model/SessionModel.js";
 import { RefreshDTO } from "./dto/RefreshDTO.js";
 import { Session } from "./types/Session.js";
@@ -20,7 +19,7 @@ export default class AuthService{
     ) {}
 
     public async login(loginDTO: LoginUserDTO){
-        const userDB = await this.userModel.findByCC(loginDTO.cc);
+        const userDB = await this.userModel.findByDocument(loginDTO.document);
 
         if(!userDB){
             throw new Error('User not found');
@@ -45,9 +44,9 @@ export default class AuthService{
         const expiresAt = new Date()
         expiresAt.setDate(expiresAt.getDate() + 7);
 
-        await this.saveRefreshToken({ idUser: user.idUser, refreshToken: refreshToken, createdAt: new Date(), expiresAt: expiresAt, role: user.role })
+        await this.tokenService.saveRefreshToken({ idUser: user.idUser, refreshToken: refreshToken, createdAt: new Date(), expiresAt: expiresAt, role: user.role })
 
-        return { accessToken, refreshToken, role: user.role };
+        return { accessToken, refreshToken, role: user.role, idUser: user.idUser };
 
     }
 
@@ -103,13 +102,13 @@ export default class AuthService{
     }
 
     public async changePassword(changePasswordDTO: ChangePasswordDTO){
-        const user = await this.userModel.findByCC(changePasswordDTO.cc);
+        const user = await this.userModel.findByDocument(changePasswordDTO.document);
 
         if(!user){
             throw new Error("User not found");
         }
 
-        const result = await this.userModel.updatePassword(user.CC.toString(), changePasswordDTO.newPassword);
+        const result = await this.userModel.updatePassword(user.document.toString(), changePasswordDTO.newPassword);
 
         if(!result){
             throw new Error("Server error")
@@ -121,14 +120,6 @@ export default class AuthService{
     private async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
         const validPassword = await bcrypt.compare(password, hashedPassword);
         return validPassword;
-    }
-
-    private async saveRefreshToken(session: SessionDTO){
-        const response = await this.sessionModel.create(session);
-
-        if(response.affectedRows === 0){
-            throw new Error("Error creating session")
-        }
     }
 
     private generateCode(): string{

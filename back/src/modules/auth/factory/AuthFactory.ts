@@ -4,7 +4,7 @@ import AuthRouter from "../AuthRouter.js"
 import AuthService from "../AuthService.js"
 import SessionModel from "../model/SessionModel.js"
 import SmsModel from "../model/SmsModel.js"
-import TokenService from "../TokenService.js"
+import TokenService from "../../../shared/TokenService.js"
 
 export default class AuthFactory{
     static create(){

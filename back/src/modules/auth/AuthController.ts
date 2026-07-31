@@ -10,11 +10,11 @@ export default class AuthController{
         next: NextFunction
     ): Promise<void>{
         try {
-            const { cc, password } = req.body;
+            const { document, password } = req.body;
 
-            const response = await this.authService.login({cc, password});
+            const response = await this.authService.login({document, password});
             
-            res.status(200).cookie("refreshToken", response.refreshToken, { httpOnly: true, secure: true, sameSite: true }).json({ accessToken: response.accessToken, role: response.role});
+            res.status(200).cookie("refreshToken", response.refreshToken, { httpOnly: true, secure: true, sameSite: true }).json({ accessToken: response.accessToken, role: response.role, idUser: response.idUser});
         } catch (error) {
             next(error);
         }
@@ -76,9 +76,9 @@ export default class AuthController{
         next: NextFunction
     ): Promise<void> {
         try {
-            const { cc, newPassword } = req.body;
+            const { document, newPassword } = req.body;
 
-            const response = await this.authService.changePassword({ cc, newPassword });
+            const response = await this.authService.changePassword({ document, newPassword });
 
             res.status(200).json({ message: response })
         } catch (error) {
