@@ -3,7 +3,7 @@ import RegisterForm from "../components/RegisterUser/RegisterForm";
 import VerifyRegisterSMS from "../components/RegisterUser/VerifyRegisterSMS";
 
 export default function RegisterPage(){
-    const [step, setStep] = useState("verify");
+    const [step, setStep] = useState("register");
 
     return (
         <div className="d-flex justify-content-center align-items-center vh-100">
