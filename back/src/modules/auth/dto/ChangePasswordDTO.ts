@@ -1,4 +1,4 @@
 export interface ChangePasswordDTO{
-    cc: string;
+    document: string;
     newPassword: string;
 }
