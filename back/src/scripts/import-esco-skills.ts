@@ -182,7 +182,7 @@ const insertRelation = async (occupationsSkills: Relation[]) => {
 
     await pool.execute(
         `INSERT INTO 
-            skills_occupations (idSkills, idOccupations, relationType) 
+            skills_occupations (idSkill, idOccupations, relationType) 
             VALUES ${placeholders} 
             ON DUPLICATE KEY UPDATE 
                 relationType = VALUES(relationType)`,
