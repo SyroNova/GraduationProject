@@ -6,6 +6,7 @@ import ResumeSkillController from "./controllers/ResumeSkillController.js";
 import ResumeAcademicExController from "./controllers/ResumeAcademicExController.js";
 import ResumeWorkExController from "./controllers/ResumeWorkExController.js";
 import { validateRequestArrayBody, validateRequestBody, validateRequestObjectBody, validateRequestParams, validateUpdateRequest } from "../../middlewares/ValidateMiddleware.js";
+import { authMiddleware } from "../../middlewares/AuthMiddleware.js";
 
 export default class ResumeRouter implements InterfaceRouter{
     path: string;
@@ -16,7 +17,7 @@ export default class ResumeRouter implements InterfaceRouter{
         private readonly professionalPController: ResumeProfessionalPController,
         private readonly skillsController: ResumeSkillController,
         private readonly academicExController: ResumeAcademicExController,
-        private readonly workExController: ResumeWorkExController
+        private readonly workExController: ResumeWorkExController,
     ) {
         this.router = Router()
         this.path = '/resume'
@@ -31,10 +32,10 @@ export default class ResumeRouter implements InterfaceRouter{
         this.router.post(
             '/create/:id',
             validateRequestParams(['id']),
-            validateRequestObjectBody('professionalProfile', ['title', 'resume']),
-            validateRequestObjectBody('workExperience', ['name', 'dateStart', 'dateEnd', 'institution']),
-            validateRequestObjectBody('academicExperience', ['position', 'company', 'dateStart']),
-            validateRequestArrayBody('skills', ['name', 'level']),
+            //validateRequestObjectBody('professionalProfile', ['title', 'resume']),
+            //validateRequestObjectBody('workExperience', ['name', 'dateStart', 'dateEnd', 'institution']),
+            //validateRequestObjectBody('academicExperience', ['position', 'company', 'dateStart']),
+            //validateRequestArrayBody('skills', ['name', 'level']),
             this.resumeController.createResume.bind(this.resumeController)
         )
 
@@ -49,26 +50,26 @@ export default class ResumeRouter implements InterfaceRouter{
         this.router.post(
             '/add/:id/skill',
             validateRequestParams(['id']),
-            validateRequestBody(['name', 'level']),
+            validateRequestBody(['idSkill', 'level']),
             this.skillsController.addSkill.bind(this.skillsController)
         )
 
         this.router.get(
-            '/get/:id/skill',
+            '/get/:id/skills',
             validateRequestParams(['id']),
-            this.skillsController.getSkill.bind(this.skillsController)
+            this.skillsController.getSkills.bind(this.skillsController)
         )
 
         this.router.patch(
-            '/patch/:id/skill',
-            validateRequestParams(['id']),
-            validateUpdateRequest(['name', 'level']),
+            '/patch/:id/skill/:idSkill',
+            validateRequestParams(['id', 'idSkill']),
+            validateUpdateRequest(['level']),
             this.skillsController.updateSkill.bind(this.skillsController)
         )
 
         this.router.delete(
-            '/delete/:id/skill',
-            validateRequestParams(['id']),
+            '/delete/:id/skill/:idSkill',
+            validateRequestParams(['id', 'idSkill']),
             this.skillsController.deleteSkill.bind(this.skillsController)
         )
     }
@@ -77,7 +78,7 @@ export default class ResumeRouter implements InterfaceRouter{
         this.router.post(
             '/add/:id/academicEx',
             validateRequestParams(['id']),
-            validateRequestBody(['position', 'company', 'dateStart']),
+            validateRequestBody(['degree', 'institution', 'dateStart']),
             this.academicExController.addAcademicExperience.bind(this.academicExController)
         )
 
@@ -90,7 +91,7 @@ export default class ResumeRouter implements InterfaceRouter{
         this.router.patch(
             '/patch/:id/academicEx',
             validateRequestParams(['id']),
-            validateUpdateRequest(['position', 'company', 'dateStart', 'dateEnd', 'resume']),
+            validateUpdateRequest(['degree', 'institution', 'dateStart', 'dateEnd', 'description']),
             this.academicExController.updateAcademicExperience.bind(this.academicExController)
         )
 
@@ -105,7 +106,7 @@ export default class ResumeRouter implements InterfaceRouter{
         this.router.post(
             '/add/:id/workEx',
             validateRequestParams(['id']),
-            validateRequestBody(['name', 'dateStart', 'dateEnd', 'institution']),
+            validateRequestBody(['position', 'dateStart', 'dateEnd', 'company']),
             this.workExController.addWorkExperience.bind(this.workExController)
         )
 
@@ -118,7 +119,7 @@ export default class ResumeRouter implements InterfaceRouter{
         this.router.patch(
             '/patch/:id/workEx',
             validateRequestParams(['id']),
-            validateUpdateRequest(['name', 'dateStart', 'dateEnd', 'institution']),
+            validateUpdateRequest(['position', 'dateStart', 'dateEnd', 'company', 'description']),
             this.workExController.updateWorkExperience.bind(this.workExController)
         )
 

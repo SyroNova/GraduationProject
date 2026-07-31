@@ -50,7 +50,7 @@ export default class ResumeAcademicExService{
 
         const values = Object.values(dataUpt);
         
-        values.push(dataUpt)
+        values.push(idAcademicEx)
 
         return this.transactionManager.execute(
             async (conn) => {

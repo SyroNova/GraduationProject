@@ -50,7 +50,7 @@ export default class ResumeProfessionalPService{
 
         const values = Object.values(dataUpt);
         
-        values.push(dataUpt)
+        values.push(idProfessionalP)
 
         return this.transactionManager.execute(
             async (conn) => {

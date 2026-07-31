@@ -12,15 +12,13 @@ export default class ResumeSkillService{
     ) {}
     
     public async addSkill(idResume: number, data: SkillsDTO){
-        const idSkill = await this.resumeOrchestator.addSkillToResume(idResume, data)
+        const message = await this.resumeOrchestator.addSkillToResume(idResume, data)
     
-        const skillAdded = await this.resumeOrchestator.getSkillFromResume(idSkill)
-    
-        return { message: "Skill added to resume successfully", skill: skillAdded }
+        return { message: message }
     }
     
-    public async getSkill(idSkill: number){
-        const skill = await this.resumeOrchestator.getSkillFromResume(idSkill)
+    public async getSkills(idResume: number){
+        const skill = await this.resumeOrchestator.getSkillsFromResume(idResume)
 
         if(!skill){
             throw new HttpError("Skill not found", 404)
@@ -29,8 +27,8 @@ export default class ResumeSkillService{
         return skill
     }
 
-    public async deleteSkill(idSkill: number){
-        const result = await this.resumeOrchestator.deleteSkillFromResume(idSkill)
+    public async deleteSkill(idResume: number, idSkill: string){
+        const result = await this.resumeOrchestator.deleteSkillFromResume(idResume, idSkill)
 
         if(result.affectedRows === 0){
             throw new HttpError("Error deleting skill from resume", 500)
@@ -39,14 +37,14 @@ export default class ResumeSkillService{
         return { message: "Skill deleted from resume successfully" }
     }
 
-    public async updateSkill(idSkill: number, dataUpt: UpdateSkillDTO){
+    public async updateSkill(idResume: number, idSkill: string, dataUpt: UpdateSkillDTO){
         const fields = Object.keys(dataUpt);
         
         const setClause = fields.map((field: string) => `${field} = ?`).join(', ')
 
         const values = Object.values(dataUpt);
         
-        values.push(dataUpt)
+        values.push(idResume, idSkill)
 
         return this.transactionManager.execute(
             async (conn) => {
@@ -58,7 +56,7 @@ export default class ResumeSkillService{
                     throw new HttpError("Error updating skill from resume", 500)
                 }
 
-                const skillUpdated = await skill.get(idSkill)
+                const skillUpdated = await skill.getOne(idResume, idSkill)
 
                 return { message: "Skill updated successfully", skill: skillUpdated }
             }

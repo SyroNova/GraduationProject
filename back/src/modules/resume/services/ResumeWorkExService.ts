@@ -50,7 +50,7 @@ export default class ResumeWorkExService{
 
         const values = Object.values(dataUpt);
         
-        values.push(dataUpt)
+        values.push(idWorkEx)
 
         return this.transactionManager.execute(
             async (conn) => {

@@ -7,7 +7,6 @@ import TransactionManager from "../../../shared/TransactionManager.js";
 import { PoolConnection } from "mysql2/promise";
 import HttpError from "../../../shared/HttpError.js";
 import ResumeModel from "./ResumeModel.js";
-import ResumeSkillsModel from "./ResumeSkillsModel.js";
 import SkillsDTO from "../dto/create/SkillsDTO.js";
 import AcademicExperienceDTO from "../dto/create/AcademicExperienceDTO.js";
 import ProfessionalProfileDTO from "../dto/create/ProfessionalProfileDTO.js";
@@ -25,7 +24,7 @@ export default class ResumeOrchestrator{
     public async createCompleteResume(idResume: number, data: ResumeDTO){
         return this.transactionManager.execute(
             async (conn) => {
-                const { resume, academicEx, professionalP, skillsModel, resumeSkills, workExModel } = this.getModelsTransaction(conn)
+                const { resume, academicExModel, professionalPModel, skillsModel, workExModel } = this.getModelsTransaction(conn)
 
                 const resultResume = await resume.get(idResume)
 
@@ -33,36 +32,33 @@ export default class ResumeOrchestrator{
                     throw new HttpError("Error getting resume", 500)
                 }
 
-                const resultAcademic = await academicEx.create(idResume, data.academicExperience)
+                for(const academicEx of data.academicExperience){
+                    const resultAcademic = await academicExModel.create(idResume, academicEx)
 
-                if(resultAcademic.affectedRows === 0){
-                    throw new HttpError("Error creating academic experience", 500)
+                    if(resultAcademic.affectedRows === 0){
+                        throw new HttpError(`Error creating academic experience ${academicEx.institution}`, 500)
+                    }
                 }
-
-                const resultProfessional = await professionalP.create(idResume, data.professionalProfile)
+                const resultProfessional = await professionalPModel.create(idResume, data.professionalProfile)
 
                 if(resultProfessional.affectedRows === 0){
                     throw new HttpError("Error creating professional profile", 500)
                 }
 
                 for(const skill of data.skills){
-                    const resultSkill = await skillsModel.create(skill)
+                    const resultSkill = await skillsModel.create(skill, idResume)
 
                     if(resultSkill.affectedRows === 0){
-                        throw new HttpError(`Error creating skill ${skill.name}`, 500)
-                    }
-
-                    const resultResumeSkill = await resumeSkills.create(idResume, resultSkill.insertId)
-
-                    if(resultResumeSkill.affectedRows === 0){
-                        throw new HttpError(`Error creating skill resume for ${skill.name}`, 500)
+                        throw new HttpError(`Error creating skill ${skill.idSkill}`, 500)
                     }
                 }
 
-                const resultWork = await workExModel.create(idResume, data.workExperience)
+                for(const workEx of data.workExperience){
+                    const resultWork = await workExModel.create(idResume, workEx)
 
-                if(resultWork.affectedRows === 0){
-                    throw new HttpError("Error creating work experience", 500)
+                    if(resultWork.affectedRows === 0){
+                        throw new HttpError(`Error creating work experience for ${workEx.company}`, 500)
+                    }
                 }
 
                 return { idResume, message: "Resume created successfully" }
@@ -73,27 +69,21 @@ export default class ResumeOrchestrator{
     public async getCompleteResume(idResume: number){
         return this.transactionManager.execute(
             async (conn) => {
-                const { academicEx, professionalP, skillsModel, resumeSkills, workExModel } = this.getModelsTransaction(conn)
+                const { academicExModel, professionalPModel, skillsModel, workExModel } = this.getModelsTransaction(conn)
 
-                const resultAcademic = await academicEx.getByResumeId(idResume)
+                const resultAcademic = await academicExModel.getByResumeId(idResume)
 
                 if(!resultAcademic){
                     throw new HttpError("Error getting academic experience", 500)
                 }
 
-                const resultProfessional = await professionalP.getByResumeId(idResume)
+                const resultProfessional = await professionalPModel.getByResumeId(idResume)
 
                 if(!resultProfessional){
                     throw new HttpError("Error getting professional profile", 500)
                 }
 
-                const resultSkillsResume = await resumeSkills.getByResumeId(idResume)
-
-                if(!resultSkillsResume){
-                    throw new HttpError("Error getting resume skills", 500)
-                }
-
-                const resultSkills = await skillsModel.get(resultSkillsResume.idSkills)
+                const resultSkills = await skillsModel.getAll(idResume)
 
                 if(!resultSkills){
                     throw new HttpError("Error getting skills", 500)
@@ -118,31 +108,29 @@ export default class ResumeOrchestrator{
     public async addSkillToResume(idResume: number, data: SkillsDTO){
         return this.transactionManager.execute(
             async (conn) =>{
-                const { skillsModel, resumeSkills } = this.getModelsTransaction(conn)
+                const { skillsModel } = this.getModelsTransaction(conn)
 
-                const resultSkill = await skillsModel.create(data)
+                const resultSkill = await skillsModel.create(data, idResume)
 
                 if(resultSkill.affectedRows === 0){
-                    throw new HttpError("Error creating skill", 500)
+                    throw new HttpError("Error creating resume_skill", 500)
                 }
 
-                const resultResumeSkill = await resumeSkills.create(idResume, resultSkill.insertId)
-
-                if(resultResumeSkill.affectedRows === 0){
-                    throw new HttpError("Error creating resume skill", 500)
-                }
-
-                return resultSkill.insertId
+                return "Skill added to resume successfully"
             }
         )
     }
 
-    public async getSkillFromResume(idSkill: number){
-        return await this.skillsModel.get(idSkill)
+    public async getSkillFromResume(idResume: number, idSkill: string){
+        return await this.skillsModel.getOne(idResume, idSkill)
     }
 
-    public async deleteSkillFromResume(idSkill: number){
-        return await this.skillsModel.delete(idSkill)
+    public async getSkillsFromResume(idResume: number){
+        return await this.skillsModel.getAll(idResume)
+    }
+
+    public async deleteSkillFromResume(idResume: number, idSkill: string){
+        return await this.skillsModel.delete(idResume, idSkill)
     }
 
     public async updateSkillFromResume(setClause: string, values: string[]){
@@ -200,10 +188,9 @@ export default class ResumeOrchestrator{
     private getModelsTransaction(conn: PoolConnection){
         return {
             resume: new ResumeModel(conn),
-            academicEx: new AcademicExperienceModel(conn),
-            professionalP: new ProfessionalProfileModel(conn),
+            academicExModel: new AcademicExperienceModel(conn),
+            professionalPModel: new ProfessionalProfileModel(conn),
             skillsModel: new SkillsModel(conn),
-            resumeSkills: new ResumeSkillsModel(conn),
             workExModel: new WorkExperienceModel(conn)
         }
     }
