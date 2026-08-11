@@ -1,11 +1,11 @@
 import { createContext, useEffect, useState } from "react";
-import type { AcademicExperience, Skill, WorkExperience } from "../types/Resume";
+import type Skill from "../types/Curriculum/Skill";
+import type AcademicExperience from "../types/Curriculum/AcademicExperience";
+import type WorkExperience from "../types/Curriculum/WorkExperience";
+import type ProfessionalProfile from "../types/Curriculum/ProfessionalProfile";
 
 type ResumeType = {
-    professionalProfile: {
-        title: string,
-        resume: string
-    },
+    professionalProfile: ProfessionalProfile | null,
     workExperience: WorkExperience[],
     academicExperience: AcademicExperience[],
     skills: Skill[]
