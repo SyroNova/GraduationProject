@@ -14,7 +14,7 @@ export default function DashboardHelp(){
             </div>
             <hr className="mt-0"/>
             <div className="d-flex flex-column justify-content-center align-items-center mt-5 gap-5">
-                <Card className="bg-danger" style={{ width: '50rem' }}>
+                <Card className="bg-danger" style={{ width: '80%' }}>
                     <Card.Body>
                         <Row>
                             <Col sm={1}>
@@ -35,7 +35,7 @@ export default function DashboardHelp(){
                         </Row>
                     </Card.Body>
                 </Card>
-                <Card style={{ width: '50rem' }}>
+                <Card style={{ width: '80%' }}>
                     <Card.Body>
                         <Row>
                             <Col sm={1}>
@@ -75,7 +75,7 @@ export default function DashboardHelp(){
                         </Accordion>
                     </Card.Body>
                 </Card>
-                <Card style={{ width: '50rem' }}>
+                <Card style={{ width: '80%' }}>
                     <Card.Body>
                         <Row>
                             <Col sm={1}>
@@ -119,7 +119,7 @@ export default function DashboardHelp(){
                         </Row>
                     </Card.Body>
                 </Card>
-                <Card className="mb-3" style={{ width: '50rem' }}>
+                <Card className="mb-3" style={{ width: '80%' }}>
                     <Card.Body>
                         <Row>
                             <Col sm={1}>
