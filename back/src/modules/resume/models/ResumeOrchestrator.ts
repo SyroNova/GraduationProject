@@ -11,6 +11,7 @@ import SkillsDTO from "../dto/create/SkillsDTO.js";
 import AcademicExperienceDTO from "../dto/create/AcademicExperienceDTO.js";
 import ProfessionalProfileDTO from "../dto/create/ProfessionalProfileDTO.js";
 import WorkExperienceDTO from "../dto/create/WorkExperienceDTO.js";
+import ResumeResponse from "../dto/select/ResumeResponse.js";
 
 export default class ResumeOrchestrator{
     constructor(
@@ -39,11 +40,15 @@ export default class ResumeOrchestrator{
                         throw new HttpError(`Error creating academic experience ${academicEx.institution}`, 500)
                     }
                 }
-                const resultProfessional = await professionalPModel.create(idResume, data.professionalProfile)
 
-                if(resultProfessional.affectedRows === 0){
-                    throw new HttpError("Error creating professional profile", 500)
+                if(data.professionalProfile){
+                    const resultProfessional = await professionalPModel.create(idResume, data.professionalProfile)
+
+                    if(resultProfessional.affectedRows === 0){
+                        throw new HttpError("Error creating professional profile", 500)
+                    }
                 }
+                
 
                 for(const skill of data.skills){
                     const resultSkill = await skillsModel.create(skill, idResume)
@@ -66,40 +71,35 @@ export default class ResumeOrchestrator{
         )
     }
 
-    public async getCompleteResume(idResume: number){
+    public async getCompleteResume(idResume: number): Promise<ResumeResponse>{
         return this.transactionManager.execute(
             async (conn) => {
                 const { academicExModel, professionalPModel, skillsModel, workExModel } = this.getModelsTransaction(conn)
+                let professionalProfile = null
 
-                const resultAcademic = await academicExModel.getByResumeId(idResume)
+                const [
+                    resultAcademic,
+                    resultProfessional,
+                    resultSkills,
+                    resultWork
+                ] = await Promise.all([
+                    academicExModel.getByResumeId(idResume),
+                    professionalPModel.getByResumeId(idResume),
+                    skillsModel.getAll(idResume),
+                    workExModel.getByResumeId(idResume)
+                ])
 
-                if(!resultAcademic){
-                    throw new HttpError("Error getting academic experience", 500)
-                }
-
-                const resultProfessional = await professionalPModel.getByResumeId(idResume)
-
-                if(!resultProfessional){
-                    throw new HttpError("Error getting professional profile", 500)
-                }
-
-                const resultSkills = await skillsModel.getAll(idResume)
-
-                if(!resultSkills){
-                    throw new HttpError("Error getting skills", 500)
-                }
-
-                const resultWork = await workExModel.getByResumeId(idResume,)
-
-                if(!resultWork){
-                    throw new HttpError("Error getting work experience", 500)
+                if(resultProfessional){
+                    const {idResume, ...profesional} = resultProfessional
+                    professionalProfile = profesional
                 }
 
                 return {
-                    academicEx: resultAcademic,
-                    professionalP: resultProfessional,
-                    skills: resultSkills,
-                    workEx: resultWork,
+                    idResume: idResume,
+                    academicExperience: resultAcademic.map(({idResume, ...academic}) => academic),
+                    professionalProfile: professionalProfile,
+                    skills:resultSkills.map(({idResume, ...skill}) => skill),
+                    workExperience: resultWork.map(({idResume, ...work}) => work),
                 }
             }
         )
