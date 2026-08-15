@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Col, Form, Modal, ModalFooter, Row, Spinner } from "react-bootstrap"
+import { Alert, Button, Card, Col, Form, Row, Spinner } from "react-bootstrap"
 import logo from "../../assets/Logo.png";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -9,7 +9,8 @@ import UseResume from "../../hooks/UseResume";
 import { CiTrash } from "react-icons/ci";
 import * as yup from "yup";
 import { Formik } from "formik";
-import type { Skill, SkillEsco } from "../../types/Resume";
+import type Skill from "../../types/Curriculum/Skill";
+import type { SkillEsco } from "../../types/Curriculum/Esco";
 import UseAuth from "../../hooks/UseAuth";
 
 type Props = {
@@ -32,11 +33,6 @@ export default function SkillsCard({onBack}: Readonly<Props>) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("")
     const [skills, setSkills] = useState<SkillEsco[]>([])
-
-    const [show, setShow] = useState(false)
-
-    const handleClose = () => setShow(false)
-    const handleShow = () => setShow(true)
 
     useEffect(() => {
         const fetchSkills = async () => {
@@ -200,15 +196,14 @@ export default function SkillsCard({onBack}: Readonly<Props>) {
                                         >
                                             <div className="justify-content-center p-1" style={{border: '1px solid black', borderRadius: '5px'}}>
                                                 <Row>
-                                                    <Col
-                                                        style={{
-                                                            whiteSpace: "nowrap",
-                                                            overflow: "hidden",
-                                                            textOverflow: "ellipsis"
-                                                        }}
+                                                        <Col
+                                                        className="text-truncate"
                                                         title={skill.name}
                                                     >
                                                         {skill.name}
+                                                    </Col>
+                                                    <Col xs="auto">
+                                                        {"-"}
                                                     </Col>
                                                     <Col xs="auto">
                                                         {skill.level}
@@ -223,7 +218,7 @@ export default function SkillsCard({onBack}: Readonly<Props>) {
                             }
                             <div className="d-flex justify-content-around">
                                 <button type="button" className="btn btn-secondary" onClick={handleBack} style={{ border: 0}}>Anterior</button>
-                                <button type="button" className="btn-link" style={{background: 'none', border: 'none'}} onClick={handleShow}>Guardar temporalmente y salir</button>
+                                <button type="button" className="btn-link" style={{background: 'none', border: 'none'}} onClick={() => navigator("/dashboard/home")}>Guardar temporalmente y salir</button>
                                 <Button type="button" className="btn btn-primary" onClick={handleFinish}>Finalizar</Button>
                             </div>
                         </Form>
@@ -232,25 +227,6 @@ export default function SkillsCard({onBack}: Readonly<Props>) {
                 </Card.Body>
             </Card>
         }
-        <Modal show={show} onHide={handleClose}>
-            <Modal.Header>
-                <Modal.Title>Alerta!!!</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                Puedes continuar navegando por la plataforma y volver a este formulario durante esta sesion.
-                <br />
-                <br />
-                Si recargas la pagina o cierras la pestaña, el progreso no enviado se perdera.
-            </Modal.Body>
-            <ModalFooter>
-                <Button variant="secondary" onClick={handleClose}>
-                    Cerrar
-                </Button>
-                <Button variant="primary" onClick={() => navigator("/dashboard/home")}>
-                    Guardar temporalmente
-                </Button>
-            </ModalFooter>
-        </Modal>
         </>
     )
 } 

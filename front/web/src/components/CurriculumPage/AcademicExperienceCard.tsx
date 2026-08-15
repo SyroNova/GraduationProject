@@ -1,9 +1,8 @@
-import { Alert, Button, Card, Col, Form, Modal, ModalFooter, Row } from "react-bootstrap"
+import { Alert, Button, Card, Col, Form, Row } from "react-bootstrap"
 import logo from "../../assets/Logo.png";
 import { GoAlert } from "react-icons/go";
 import { Formik } from "formik";
-import type { AcademicExperience } from "../../types/Resume";
-import { useState } from "react";
+import type AcademicExperience from "../../types/Curriculum/AcademicExperience";
 import UseResume from "../../hooks/UseResume";
 import * as yup from "yup";
 import { CiTrash } from "react-icons/ci";
@@ -21,11 +20,6 @@ export default function AcademicExperienceCard({onNext, onBack}: Readonly<Props>
     const { resume, setResume } = UseResume()
 
     const experiences: AcademicExperience[] = resume?.academicExperience ?? [];
-
-    const [show, setShow] = useState(false)
-
-    const handleClose = () => setShow(false)
-    const handleShow = () => setShow(true)
 
     const schema = yup.object().shape({
         degree: yup.string().required("Porfavor ingrese el titulo obtenido"),
@@ -57,178 +51,158 @@ export default function AcademicExperienceCard({onNext, onBack}: Readonly<Props>
     }
 
     return (
-        <>
-            <Card style={{ maxWidth: '50rem'}}>
-                <Card.Body className="d-flex align-items-center flex-column h-100">
-                    <div className="d-flex justify-content-center flex-column align-items-center">
-                        <img src={logo} alt="logo" style={{ height: "110px", width: "110px", objectFit: "cover" }}  className="img-fluid" />
-                        <p className="fw-bold fs-3" style={{color: "var(--color-text-primary)"}}>Experiencia academica</p>
-                    </div>
-                    <Alert variant="warning" className="pt-2 pb-0">
-                        <Row>
-                            <Col sm={1}>
-                                <GoAlert size={30}/>
-                            </Col>
-                            <Col>
-                                <p>En esta primera etapa te permitimos registrar un maximo de 2 experiencias, despues podras acceder a tu hoja de vida y añadir un maximo de 5.</p>
+        <Card style={{ maxWidth: '50rem'}}>
+            <Card.Body className="d-flex align-items-center flex-column h-100">
+                <div className="d-flex justify-content-center flex-column align-items-center">
+                    <img src={logo} alt="logo" style={{ height: "110px", width: "110px", objectFit: "cover" }}  className="img-fluid" />
+                    <p className="fw-bold fs-3" style={{color: "var(--color-text-primary)"}}>Experiencia academica</p>
+                </div>
+                <Alert variant="warning" className="pt-2 pb-0">
+                    <Row>
+                        <Col sm={1}>
+                            <GoAlert size={30}/>
+                        </Col>
+                        <Col>
+                            <p>En esta primera etapa te permitimos registrar un maximo de 2 experiencias, despues podras acceder a tu hoja de vida y añadir un maximo de 5.</p>
+                        </Col>
+                    </Row>
+                </Alert>
+                <Formik
+                    validationSchema={schema}
+                    onSubmit={ (values) => {
+                        const newExperience: AcademicExperience = {
+                            degree: values.degree,
+                            institution: values.institution,
+                            dateStart: values.dateStart.toString(),
+                            dateEnd: values.dateEnd ?? null,
+                            description: values.description ?? null
+                        }
+
+                        setResume(prev => ({
+                            ...prev!,
+                            academicExperience: [...(prev?.academicExperience ?? []), newExperience]
+                        }))
+                    }}
+                    initialValues={{
+                        degree: "",
+                        institution: "",
+                        dateStart: "",
+                        dateEnd: "",
+                        description: ""
+                    }}
+                >{({handleSubmit, handleChange, handleBlur, values, touched, errors, isValid}) => (
+                    <Form noValidate onSubmit={handleSubmit} className="w-75 p-2">
+                        <Row className="justify-content-end">
+                            <Col xs="auto">
+                                <Button type="submit" variant="link" className="text-decoration-none" disabled={!isValid}>+ Agregar experiencia</Button>
                             </Col>
                         </Row>
-                    </Alert>
-                    <Formik
-                        validationSchema={schema}
-                        onSubmit={ (values) => {
-                            const newExperience: AcademicExperience = {
-                                degree: values.degree,
-                                institution: values.institution,
-                                dateStart: values.dateStart.toString(),
-                                dateEnd: values.dateEnd ?? null,
-                                description: values.description ?? null
-                            }
-
-                            setResume(prev => ({
-                                ...prev!,
-                                academicExperience: [...(prev?.academicExperience ?? []), newExperience]
-                            }))
-                        }}
-                        initialValues={{
-                            degree: "",
-                            institution: "",
-                            dateStart: "",
-                            dateEnd: "",
-                            description: ""
-                        }}
-                    >{({handleSubmit, handleChange, handleBlur, values, touched, errors, isValid}) => (
-                        <Form noValidate onSubmit={handleSubmit} className="w-75 p-2">
-                            <Row className="justify-content-end">
-                                <Col xs="auto">
-                                    <Button type="submit" variant="link" className="text-decoration-none" disabled={!isValid}>+ Agregar experiencia</Button>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label className="fw-bold">Titulo</Form.Label>
-                                        <Form.Control 
-                                            type="text"
-                                            name="degree"
-                                            placeholder="Ingresa el titulo obtenido"
-                                            value={values.degree}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            isInvalid={touched.degree && !!errors.degree}
-                                        />
-                                        <Form.Control.Feedback type="invalid">{errors.degree}</Form.Control.Feedback>
-                                    </Form.Group>
-                                </Col>
-                                <Col>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label className="fw-bold">Institución</Form.Label>
-                                        <Form.Control 
-                                            type="text"
-                                            name="institution"
-                                            placeholder="Ingresa la institución"
-                                            value={values.institution}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            isInvalid={touched.institution && !!errors.institution}
-                                        />
-                                        <Form.Control.Feedback type="invalid">{errors.institution}</Form.Control.Feedback>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label className="fw-bold">Fecha de inicio</Form.Label>
-                                        <Form.Control 
-                                            type="date"
-                                            name="dateStart"
-                                            value={values.dateStart}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            isInvalid={touched.dateStart && !!errors.dateStart}
-                                        />
-                                        <Form.Control.Feedback type="invalid">{errors.dateStart}</Form.Control.Feedback>
-                                    </Form.Group>
-                                </Col>
-                                <Col>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label className="fw-bold">Fecha de Fin</Form.Label>
-                                        <Form.Control 
-                                            type="date"
-                                            name="dateEnd"
-                                            value={values.dateEnd}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            isInvalid={touched.dateEnd && !!errors.dateEnd}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Form.Group>
-                                <Form.Label className="fw-bold">Especificaciones</Form.Label>
-                                <Form.Control 
-                                    as="textarea" 
-                                    rows={4} 
-                                    style={{ resize: 'none' }}
-                                    name="description"
-                                    value={values.description}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    isInvalid={touched.description && !!errors.description}
-                                />
-                            </Form.Group>
-                            {experiences.length > 0 &&
-                                <div className="p-2 mt-4" style={{ border: "1px solid gray", borderRadius: "5px" }}>
-                                    {experiences.map((exp, index) => (
-                                        <div
-                                            key={index}
-                                            className="d-flex justify-content-between align-items-center py-1"
-                                            style={{ fontSize: "0.9rem" }}
-                                        >
-                                            <div>
-                                                <strong>{exp.degree}</strong> · {exp.institution}
-                                            </div>
-
-                                            <div>
-                                                <small className="text-muted me-2">
-                                                    {exp.dateStart} - {exp.dateEnd || "Actual"}
-                                                </small>
-                                                <CiTrash size="20" color="black" onClick={() => handleDelete(index)}/>
-                                            </div>
+                        <Row>
+                            <Col>
+                                <Form.Group className="mb-3">
+                                    <Form.Label className="fw-bold">Titulo</Form.Label>
+                                    <Form.Control 
+                                        type="text"
+                                        name="degree"
+                                        placeholder="Ingresa el titulo obtenido"
+                                        value={values.degree}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.degree && !!errors.degree}
+                                    />
+                                    <Form.Control.Feedback type="invalid">{errors.degree}</Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group className="mb-3">
+                                    <Form.Label className="fw-bold">Institución</Form.Label>
+                                    <Form.Control 
+                                        type="text"
+                                        name="institution"
+                                        placeholder="Ingresa la institución"
+                                        value={values.institution}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.institution && !!errors.institution}
+                                    />
+                                    <Form.Control.Feedback type="invalid">{errors.institution}</Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Form.Group className="mb-3">
+                                    <Form.Label className="fw-bold">Fecha de inicio</Form.Label>
+                                    <Form.Control 
+                                        type="date"
+                                        name="dateStart"
+                                        value={values.dateStart}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.dateStart && !!errors.dateStart}
+                                    />
+                                    <Form.Control.Feedback type="invalid">{errors.dateStart}</Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group className="mb-3">
+                                    <Form.Label className="fw-bold">Fecha de Fin</Form.Label>
+                                    <Form.Control 
+                                        type="date"
+                                        name="dateEnd"
+                                        value={values.dateEnd}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.dateEnd && !!errors.dateEnd}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Form.Group>
+                            <Form.Label className="fw-bold">Especificaciones</Form.Label>
+                            <Form.Control 
+                                as="textarea" 
+                                rows={4} 
+                                style={{ resize: 'none' }}
+                                name="description"
+                                value={values.description}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                isInvalid={touched.description && !!errors.description}
+                            />
+                        </Form.Group>
+                        {experiences.length > 0 &&
+                            <div className="p-2 mt-4" style={{ border: "1px solid gray", borderRadius: "5px" }}>
+                                {experiences.map((exp, index) => (
+                                    <div
+                                        key={index}
+                                        className="d-flex justify-content-between align-items-center py-1"
+                                        style={{ fontSize: "0.9rem" }}
+                                    >
+                                        <div>
+                                            <strong>{exp.degree}</strong> · {exp.institution}
                                         </div>
-                                    ))}
-                                </div>
-                            }
-                            <div className="d-flex justify-content-around mt-3">
-                                <button type="button" className="btn btn-secondary" onClick={handleBack} style={{ border: 0}}>Anterior</button>
-                                <button type="button" className="btn-link" style={{background: 'none', border: 'none'}} onClick={handleShow}>Guardar temporalmente y salir</button>
-                                <Button type="button" className="btn btn-primary" onClick={onNext}>Siguiente</Button>
+
+                                        <div>
+                                            <small className="text-muted me-2">
+                                                {exp.dateStart} - {exp.dateEnd || "Actual"}
+                                            </small>
+                                            <CiTrash size="20" color="black" onClick={() => handleDelete(index)}/>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        </Form>
-                    )}
-                    </Formik>
-                </Card.Body>
-            </Card>
-            <Modal show={show} onHide={handleClose}>
-                <Modal.Header>
-                    <Modal.Title>Alerta!!!</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    Puedes continuar navegando por la plataforma y volver a este formulario durante esta sesion.
-                    <br />
-                    <br />
-                    Si recargas la pagina o cierras la pestaña, el progreso no enviado se perdera.
-                </Modal.Body>
-                <ModalFooter>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Cerrar
-                    </Button>
-                    <Button variant="primary" onClick={() => navigator("/dashboard/home")}>
-                        Guardar temporalmente
-                    </Button>
-                </ModalFooter>
-            </Modal>
-        </>
+                        }
+                        <div className="d-flex justify-content-around mt-3">
+                            <button type="button" className="btn btn-secondary" onClick={handleBack} style={{ border: 0}}>Anterior</button>
+                            <button type="button" className="btn-link" style={{background: 'none', border: 'none'}} onClick={() => navigator("/dashboard/home")}>Guardar y salir</button>
+                            <Button type="button" className="btn btn-primary" onClick={onNext}>Siguiente</Button>
+                        </div>
+                    </Form>
+                )}
+                </Formik>
+            </Card.Body>
+        </Card>
+        
     )
 } 

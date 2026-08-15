@@ -1,10 +1,11 @@
-import { Alert, Button, Card, Col, Form, Modal, ModalFooter, Row, Spinner } from "react-bootstrap"
+import { Alert, Button, Card, Col, Form, Row, Spinner } from "react-bootstrap"
 import logo from "../../assets/Logo.png";
 import { GoAlert } from "react-icons/go";
 import * as yup from "yup";
 import { Formik } from "formik";
 import UseResume from "../../hooks/UseResume";
-import type { OccupationEsco, WorkExperience } from "../../types/Resume";
+import type { OccupationEsco } from "../../types/Curriculum/Esco";
+import type WorkExperience from "../../types/Curriculum/WorkExperience";
 import { CiTrash } from "react-icons/ci";
 import { useEffect, useState } from "react";
 import axios from "../../api/axios";
@@ -47,11 +48,6 @@ export default function WorkExperienceCard({onNext, onBack}: Readonly<Props>) {
 
         fetchOccupations()
     }, [])
-
-    const [show, setShow] = useState(false)
-
-    const handleClose = () => setShow(false)
-    const handleShow = () => setShow(true)
 
     const schema = yup.object().shape({
         occupation: yup.object().nullable().required("Porfavor ingrese un cargo"),
@@ -257,7 +253,7 @@ export default function WorkExperienceCard({onNext, onBack}: Readonly<Props>) {
                                 }
                                 <div className="d-flex justify-content-around mt-3">
                                     <button type="button" className="btn btn-secondary" onClick={handleBack} style={{ border: 0}}>Anterior</button>
-                                    <button type="button" className="btn-link" style={{background: 'none', border: 'none'}} onClick={handleShow}>Guardar temporalmente y salir</button>
+                                    <button type="button" className="btn-link" style={{background: 'none', border: 'none'}} onClick={() => navigator("/dashboard/home")}>Guardar  y salir</button>
                                     <Button type="button" className="btn btn-primary" onClick={onNext}>Siguiente</Button>
                                 </div>
                             </Form>
@@ -266,25 +262,6 @@ export default function WorkExperienceCard({onNext, onBack}: Readonly<Props>) {
                     </Card.Body>
                 </Card>
             }
-            <Modal show={show} onHide={handleClose}>
-                <Modal.Header>
-                    <Modal.Title>Alerta!!!</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    Puedes continuar navegando por la plataforma y volver a este formulario durante esta sesion.
-                    <br />
-                    <br />
-                    Si recargas la pagina o cierras la pestaña, el progreso no enviado se perdera.
-                </Modal.Body>
-                <ModalFooter>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Cerrar
-                    </Button>
-                    <Button variant="primary" onClick={() => navigator("/dashboard/home")}>
-                        Guardar temporalmente
-                    </Button>
-                </ModalFooter>
-            </Modal>
         </>
     )
 } 
