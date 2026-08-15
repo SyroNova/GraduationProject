@@ -23,7 +23,7 @@ export default function PersonalInfoCard({onNext, onBack}: Readonly<Props>) {
 
     useEffect(() => {
         async function fetchUser() {
-            const response = await axios.get(`/users/get/id/${auth?.id ?? 5}`)//Recordar quitar el 5
+            const response = await axios.get(`/users/get/id/${auth?.id ?? 5}`)//TODO: Recordar quitar el 5
             setUser(response.data)
         }
 
@@ -138,7 +138,7 @@ export default function PersonalInfoCard({onNext, onBack}: Readonly<Props>) {
                                     <InputGroup>
                                         <Form.Select 
                                             style={{ maxWidth: '80px' }}
-                                            name="typeDoc"
+                                            name="documentType"
                                             value={values.documentType}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
@@ -173,21 +173,21 @@ export default function PersonalInfoCard({onNext, onBack}: Readonly<Props>) {
                             <Col>
                                 <Form.Group className="mb-3">
                                     <Form.Label className="fw-bold">Numero de telefono</Form.Label>
-                                        <PhoneInput
-                                            international
-                                            defaultCountry="CO"
-                                            value={values.phone}
-                                            onChange={(value) => setFieldValue("phone", value)}
-                                            onBlur={() => setFieldTouched("phone", true)}
-                                            numberInputProps={{
-                                                className:"form-control"
-                                            }}
-                                        />
-                                        {touched.phone && errors.phone && (
-                                            <div className="invalid-feedback d-block">
-                                                {errors.phone}
-                                            </div>
-                                        )}
+                                    <PhoneInput
+                                        international
+                                        defaultCountry="CO"
+                                        value={values.phone}
+                                        onChange={(value) => setFieldValue("phone", value)}
+                                        onBlur={() => setFieldTouched("phone", true)}
+                                        numberInputProps={{
+                                            className:"form-control"
+                                        }}
+                                    />
+                                    {touched.phone && errors.phone && (
+                                        <div className="invalid-feedback d-block">
+                                            {errors.phone}
+                                        </div>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col>
