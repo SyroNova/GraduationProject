@@ -39,7 +39,7 @@ export default class UserRouter implements InterfaceRouter{
         )
 
         this.router.patch(
-            '/update/:id',
+            '/patch/:id',
             validateUpdateRequest(['email', 'name', 'phone', 'birthDate', 'actualCity', 'gender', 'document', 'documentType']),
             this.userController.update.bind(this.userController)
         )
