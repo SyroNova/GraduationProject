@@ -52,8 +52,8 @@ export default function ProfessionalInfoCard({onNext, onBack}: Readonly<Props>) 
                         onNext()
                     }}
                     initialValues={{
-                        title: resume?.professionalProfile.title ?? "",
-                        resume: resume?.professionalProfile.resume ?? ""
+                        title: resume?.professionalProfile?.title ?? "",
+                        resume: resume?.professionalProfile?.resume ?? ""
                     }}
                 >{({handleSubmit, handleChange, handleBlur, values, touched, errors}) => (
                     <Form noValidate onSubmit={handleSubmit} className="w-75">
