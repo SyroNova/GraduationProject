@@ -7,7 +7,6 @@ import type { PaginatedResponse } from "../../types/Pagination";
 import CustomPagination from "./components/CustomPagination";
 import OfferCard from "./components/OfferCard";
 
-
 export default function DashboardHome(){
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
