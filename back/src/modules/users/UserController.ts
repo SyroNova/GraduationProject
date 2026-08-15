@@ -131,7 +131,7 @@ export default class UserController {
         next: NextFunction
     ){
         try {
-            const idUser = req.user?.id ?? 5
+            const idUser = req.user?.id ?? 5 //TODO: REMEMBER TO REMOVE THE DEFAULT VALUE WHEN THE AUTHENTICATION IS IMPLEMENTED
 
             const idOffer = Number(req.params.idOffer)
 
@@ -157,7 +157,7 @@ export default class UserController {
         next: NextFunction
     ) {
         try {
-            const idUser = req.user?.id ?? 5
+            const idUser = req.user?.id ?? 5 //TODO: REMEMBER TO REMOVE THE DEFAULT VALUE WHEN THE AUTHENTICATION IS IMPLEMENTED
             const page = Number(req.query.page)
             const limit = Number(req.query.limit)
     
@@ -184,7 +184,7 @@ export default class UserController {
         next: NextFunction
     ){
         try {
-            const idUser = req.user?.id ?? 5
+            const idUser = req.user?.id ?? 5 //TODO: REMEMBER TO REMOVE THE DEFAULT VALUE WHEN THE AUTHENTICATION IS IMPLEMENTED
 
             const idOffer = Number(req.params.idOffer)
 
