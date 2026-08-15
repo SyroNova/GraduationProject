@@ -32,10 +32,6 @@ export default class ResumeRouter implements InterfaceRouter{
         this.router.post(
             '/create/:id',
             validateRequestParams(['id']),
-            //validateRequestObjectBody('professionalProfile', ['title', 'resume']),
-            //validateRequestObjectBody('workExperience', ['name', 'dateStart', 'dateEnd', 'institution']),
-            //validateRequestObjectBody('academicExperience', ['position', 'company', 'dateStart']),
-            //validateRequestArrayBody('skills', ['name', 'level']),
             this.resumeController.createResume.bind(this.resumeController)
         )
 
