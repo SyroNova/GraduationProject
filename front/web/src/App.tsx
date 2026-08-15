@@ -8,7 +8,7 @@ import CurriculumPage from "./pages/CurriculumPage"
 import Dashboard from "./pages/Dashboard"
 import DashboardHome from "./components/DashboardUser/DashboardHome"
 import DashboardSaves from "./components/DashboardUser/DashboardSaves"
-import DashboardCurriculum from "./components/DashboardUser/DashboardCurriculum"
+import DashboardCurriculumView from "./components/DashboardUser/DashboardCurriculumView"
 import DashboardNotifications from "./components/DashboardUser/DashboardNotifications"
 import DashboardHelp from "./components/DashboardUser/DashboardHelp"
 import DashboardOffer from "./components/DashboardUser/DashboardOffer"
@@ -24,7 +24,7 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />}>
         <Route path="home" element={<DashboardHome />}/>
         <Route path="offer/:id" element={<DashboardOffer />}/>
-        <Route path="curriculum" element={<DashboardCurriculum />}/>
+        <Route path="curriculum" element={<DashboardCurriculumView />}/>
         <Route path="saves" element={<DashboardSaves />}/>
         <Route path="notifications" element={<DashboardNotifications />}/>
         <Route path="help" element={<DashboardHelp />}/>
