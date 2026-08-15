@@ -50,6 +50,7 @@ export default class OfferModel{
             INNER JOIN company c ON o.idCompany = c.idCompany
             LEFT JOIN user_fav_offers ufo ON ufo.idOffer = o.idOffer 
             AND ufo.idUser = ?
+            ORDER BY o.createdAt DESC
             LIMIT ${limit} OFFSET ${offset}
         `
 
