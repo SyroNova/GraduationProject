@@ -62,7 +62,7 @@ export default class AcademicExperienceModel{
 
         const [result] = await this.db.execute<AcademicExperienceDB[]>(query, [idResume])
 
-        return result[0] ?? null
+        return result
     }
 
     public async delete(id: number){
