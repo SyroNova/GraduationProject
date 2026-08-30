@@ -5,4 +5,6 @@ export interface DocumentDB extends RowDataPacket{
     file: Buffer
     fileName: string
     mimeType: string
+    fileSize: number
+    createdAt: string
 }

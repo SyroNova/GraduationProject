@@ -11,7 +11,7 @@ export default class WorkExperienceModel{
 
     public async create(idResume: number, workExperience: WorkExperienceDTO){
         const query = `
-            INSERT INTO work_experience (idResume, name, dateStart, dateEnd, institution, description)
+            INSERT INTO work_experience (idResume, position, dateStart, dateEnd, company, description)
             VALUES (?, ?, ?, ?, ?, ?)
         `
 
@@ -35,7 +35,6 @@ export default class WorkExperienceModel{
             SET ${setClause}
             WHERE idWorkExperience = ?
         `
-
         const [result] = await this.db.execute<ResultSetHeader>(query, values)
 
         return result

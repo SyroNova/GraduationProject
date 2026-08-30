@@ -4,13 +4,13 @@ import { Offer } from "../types/Offer.js";
 import { OfferDB } from "../types/OfferDB.js";
 import { Pool, PoolConnection } from "mysql2/promise";
 import HttpError from "../../../shared/HttpError.js";
+import FilterOfferDTO from "../dto/FilterOfferDTO.js";
 
-
-export default class OfferModel{
+export default class OfferModel {
     constructor(
         private readonly db: Pool | PoolConnection = pool
     ) {}
-    
+
     public async create(offer: Offer) {
         try {
             const query = `
@@ -18,89 +18,83 @@ export default class OfferModel{
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             `;
             const values = [
-                offer.idCompany, 
-                offer.title, 
+                offer.idCompany,
+                offer.title,
                 offer.salaryMin,
-                offer.salaryMax ?? null, 
-                offer.description, 
-                offer.location, 
-                offer.contractType, 
+                offer.salaryMax ?? null,
+                offer.description,
+                offer.location,
+                offer.contractType,
                 offer.expireDate ?? null
             ];
             const [result] = await this.db.execute<ResultSetHeader>(query, values);
 
             return result;
         } catch (error: any) {
-            if(error.code === "ER_CHECK_CONSTRAINT_VIOLATED"){
-                throw new HttpError("SalaryMin cannot be greater or equal than SalaryMax", 400)
+            if (error.code === "ER_CHECK_CONSTRAINT_VIOLATED") {
+                throw new HttpError("SalaryMin cannot be greater or equal than SalaryMax", 400);
             }
             throw error;
         }
     }
 
-    public async get(offset: number, limit: number, idUser: number){
+    public async get(offset: number, limit: number, idUser: number, filters?: FilterOfferDTO) {
+        const { search, location, contractType, salaryMin, salaryMax, skills } = this.getFilters(filters || {});
 
-        const query = `
-            SELECT 
-                o.*,
-                c.name companyName, 
-                c.location companyLocation,
-                ufo.idUser IS NOT NULL isFavorite
-            FROM offers o
-            INNER JOIN company c ON o.idCompany = c.idCompany
-            LEFT JOIN user_fav_offers ufo ON ufo.idOffer = o.idOffer 
-            AND ufo.idUser = ?
-            ORDER BY o.createdAt DESC
-            LIMIT ${limit} OFFSET ${offset}
-        `
+        const [results] = await this.db.query<[OfferDB[], RowDataPacket[]]>(
+            'CALL sp_filter_offers(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [idUser, search, location, contractType, salaryMin, salaryMax, skills, limit, offset]
+        );
 
-        const [result] = await this.db.execute<OfferDB[]>(query, [idUser])
+        const result = results[0] || [];
+        const total = Number(results[1]?.[0]?.total ?? 0);
 
-        const total = await this.getTotal()
-
-        return { result, total }
+        return { result, total };
     }
 
-    public async getById(id: number){
-
+    public async getById(id: number) {
         const query = `
             SELECT
                 o.*,
-                c.name companyName, 
+                c.name companyName,
                 c.location companyLocation,
-                c.idCompany
+                c.idCompany,
+                (ufo.idUser IS NOT NULL) AS isFavorite
             FROM offers o
             INNER JOIN company c ON o.idCompany = c.idCompany
+            LEFT JOIN user_fav_offers ufo ON ufo.idOffer = o.idOffer
             WHERE o.idOffer = ?
-        `
+        `;
 
-        const [result] = await this.db.execute<OfferDB[]>(query, [id])
+        const [result] = await this.db.execute<OfferDB[]>(query, [id]);
 
-        return result[0] ?? null
+        return result[0] ?? null;
     }
 
-    public async update(setClause: string, values: string[]){
+    public async update(setClause: string, values: string[]) {
         const query = `
             UPDATE offers
             SET ${setClause}
             WHERE idOffer = ?
-        `
+        `;
 
         const [result] = await this.db.execute<ResultSetHeader>(query, values);
 
         return result;
     }
 
-    private async getTotal(){
-        const queryTotal = `
-            SELECT COUNT(*) as total
-            FROM offers
-        `
+    private getFilters(filters: FilterOfferDTO) {
+        const search = filters?.search?.trim() || null;
+        const location = filters?.location?.trim() || null;
+        const contractType = Array.isArray(filters?.contractType)
+            ? filters.contractType.filter(Boolean).join(',')
+            : (filters?.contractType?.trim() || null);
+        const salaryMin = filters?.salaryMin !== undefined && !Number.isNaN(Number(filters.salaryMin)) ? Number(filters.salaryMin) : null;
+        const salaryMax = filters?.salaryMax !== undefined && !Number.isNaN(Number(filters.salaryMax)) ? Number(filters.salaryMax) : null;
+        const skills = Array.isArray(filters?.skills)
+            ? filters.skills.join(',')
+            : (filters?.skills?.trim() || null);
 
-        const [result] = await this.db.execute<RowDataPacket[]>(queryTotal)
-
-        const total = result[0].total as number
-
-        return total;
+            return { search, location, contractType, salaryMin, salaryMax, skills }
     }
 }

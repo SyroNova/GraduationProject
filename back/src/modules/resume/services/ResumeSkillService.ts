@@ -12,9 +12,15 @@ export default class ResumeSkillService{
     ) {}
     
     public async addSkill(idResume: number, data: SkillsDTO){
-        const message = await this.resumeOrchestator.addSkillToResume(idResume, data)
+        const result = await this.resumeOrchestator.addSkillToResume(idResume, data)
+
+        if(result.affectedRows === 0){
+            throw new HttpError("Error adding skill to resume", 500)
+        }
+
+        const skillAdded = await this.resumeOrchestator.getSkillFromResume(idResume, data.idSkill)
     
-        return { message: message }
+        return { message: "Skill added to resume successfully", skill: skillAdded }
     }
     
     public async getSkills(idResume: number){

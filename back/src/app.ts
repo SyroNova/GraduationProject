@@ -1,4 +1,5 @@
 import AuthFactory from "./modules/auth/factory/AuthFactory.js";
+import CommentFactory from "./modules/comments/factory/CommentFactory.js";
 import DocumentFactory from "./modules/document/factory/DocumentFactory.js";
 import EscoFactory from "./modules/esco/factory/EscoFactory.js";
 import OfferFactory from "./modules/offers/factory/OffersFactory.js";
@@ -18,6 +19,8 @@ const escoRouter = EscoFactory.create()
 
 const documentRouter = DocumentFactory.create()
 
-const server = new Server(8080, [userRouter, authRouter, offerRouter, resumeRouter, escoRouter, documentRouter])
+const commentRouter = CommentFactory.create()
+
+const server = new Server(8080, [userRouter, authRouter, offerRouter, resumeRouter, escoRouter, documentRouter, commentRouter])
 
 server.listen()

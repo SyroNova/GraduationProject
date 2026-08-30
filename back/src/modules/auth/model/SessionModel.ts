@@ -3,17 +3,25 @@ import pool from "../../../config/Database.js";
 import { SessionDTO } from "../dto/SessionDTO.js";
 import { RefreshDTO } from "../dto/RefreshDTO.js";
 import { Session } from "../types/Session.js";
+import { Pool, PoolConnection } from "mysql2/promise";
 
 export default class SessionModel{
 
+    constructor(
+        private readonly db: Pool | PoolConnection = pool
+    ) {}
+
     public async create(session: SessionDTO) {
-        
+
         const query = `
             INSERT INTO session (idUser, refreshToken, createdAt, expiresAt, role)
             VALUES (?, ?, ?, ?, ?)
         `;
         const values = [session.idUser, session.refreshToken, session.createdAt, session.expiresAt, session.role];
-        const [result] = await pool.execute<ResultSetHeader>(query, values);
+        const [result] = await this.db.execute<ResultSetHeader>(query, values);
+
+        console.log(result.affectedRows)
+        
 
         return result;
     }
@@ -26,7 +34,7 @@ export default class SessionModel{
             WHERE refreshToken = ?
             AND expiresAt > NOW()
         `
-        const [result] = await pool.execute<Session[]>(query, [refresh.refreshToken]);
+        const [result] = await this.db.execute<Session[]>(query, [refresh.refreshToken]);
 
         return result[0] ?? null;
     }

@@ -2,7 +2,7 @@ export default interface WorkExperience {
     idWorkExperience?: number
     position: string;
     dateStart: string;
-    dateEnd: string;
+    dateEnd?: string | null;
     company: string;
-    description?: string;
+    description?: string | null;
 }

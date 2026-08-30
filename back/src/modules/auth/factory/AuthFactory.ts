@@ -11,7 +11,7 @@ export default class AuthFactory{
         const sessionModel = new SessionModel()
         const smsModel = new SmsModel()
         const userModel = new UserModel()
-        const tokenService = new TokenService()
+        const tokenService = new TokenService(sessionModel)
         const authService = new AuthService(tokenService, userModel, sessionModel, smsModel)
         const authController = new AuthController(authService)
         const authRouter = new AuthRouter(authController)

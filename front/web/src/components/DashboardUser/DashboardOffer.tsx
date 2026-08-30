@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
-import { Alert, Badge, Spinner } from "react-bootstrap";
+import { Alert, Badge, Button, Col, Row, Spinner } from "react-bootstrap";
 import axios from "../../api/axios";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import type Offer from "../../types/Offer";
 import { IoMdTime } from "react-icons/io";
 import { getDaysSince } from "../../utils/dateUtils";
 import { BsBuildings } from "react-icons/bs";
+import { MdArrowBackIosNew } from "react-icons/md";
+import type MetadataResponse from "../../types/Curriculum/Document";
+import DocumentCard from "./components/DocumentCard";
+import { isAxiosError } from "axios";
+import CommentSection from "./components/Offer/CommentSection";
+import { FaRegBookmark, FaBookmark } from "react-icons/fa";
+import { IoFlagOutline } from "react-icons/io5";
+
 
 export default function DashboardOffer(){
     const { id } = useParams()
@@ -13,27 +21,58 @@ export default function DashboardOffer(){
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [offer, setOffer] = useState<Offer | null>(null)
+    const [documents, setDocuments] = useState<MetadataResponse[]>([])
+    const [isBookmarked, setIsBookmarked] = useState(offer?.isFavorite ?? false)
+
+    console.log(isBookmarked)
+
+
+    const fetchOffer = async (idOffer: string) => {
+        const response = await axios.get(`/offers/get/${idOffer}`)
+
+        const data = response.data
+
+        setIsBookmarked(data.isFavorite)
+
+        return data
+    }
+
+    const fetchDocuments = async (idOffer: string) => {
+        const response = await axios.get(`/document/get/offer/${idOffer}`)
+
+        const data = response.data
+
+        return data
+    }
 
     useEffect(() => {
-        const fetchOffer = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true)
                 setError("")
 
-                const response = await axios.get(`/offers/get/${id}`)
+                if(id == null){
+                    throw new Error("Id offer not valid")
+                }
 
-                const data = response.data
+                const [responseOffer, responseDoc] = await Promise.all([
+                    fetchOffer(id),
+                    fetchDocuments(id)
+                ])
 
-                setOffer(data)
+                setOffer(responseOffer)
+                setDocuments(responseDoc)
             } catch (error) {
-                console.log(error)
-                setError("Error loading offer")
-            } finally{
+                if(isAxiosError(error)){
+                    console.log(error.response?.data)
+                }
+                setError("Error cargando oferta")
+            }finally{
                 setLoading(false)
             }
         }
 
-        fetchOffer()
+        fetchData()
     }, [id])
 
     if(error || !offer){
@@ -46,6 +85,30 @@ export default function DashboardOffer(){
 
     const days = getDaysSince(offer?.createdAt)
 
+    const handleBookmarkAdd = async () => {
+        try {
+            await axios.post(`/users/favorite/${offer.idOffer}`)
+
+            //window.alert(response.data.message)
+
+            setIsBookmarked(true)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const handleBookmarkRemove = async () => {
+        try {
+            await axios.delete(`/users/favorite/${offer.idOffer}`)
+
+            //window.alert(response.data.message)
+
+            setIsBookmarked(false)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <>
             {loading ? 
@@ -53,13 +116,24 @@ export default function DashboardOffer(){
                     <span className="visually-hidden">Loading...</span>
                 </Spinner> 
                 :
-                <>
-                    <Alert variant="warning" className="m-5 fs-5">
-                        <b>Importante:</b>
-                        <br />
-                        Esta plataforma NO intermedia procesos de contratación. 
-                        Aplica directamente con la empresa según las instrucciones.
-                    </Alert>
+                <>  
+                    <div>
+                        <Row className="">
+                            <Col xs="auto" className="mt-2">
+                                <Link className="text-decoration-none text-reset" to="/dashboard/home">
+                                    <MdArrowBackIosNew size={40}/>
+                                </Link>
+                            </Col>
+                            <Col >
+                                <Alert variant="warning" className="mt-5 me-5 fs-5">
+                                    <b>Importante:</b>
+                                    <br />
+                                    Esta plataforma NO intermedia procesos de contratación. 
+                                    Aplica directamente con la empresa según las instrucciones.
+                                </Alert>
+                            </Col>
+                        </Row>
+                    </div>
                     <div className="d-flex m-5 flex-column gap-4">
                         <div className="d-flex align-items-center gap-2">
                             <h1>{offer?.title}</h1>
@@ -87,7 +161,33 @@ export default function DashboardOffer(){
                         <div className="fs-3 fw-medium text-muted">
                             {offer.description}
                         </div>
+                        <div className="mt-2">
+                            {documents?.length > 0 && 
+                                documents.map(document => (
+                                    <DocumentCard 
+                                        key={document.idDocument}
+                                        document={document}
+                                        isOffer={true}
+                                    />
+                                ))
+                            }
+                        </div>
+                        <Row>
+                            <Col sm="auto">
+                                <Button className="fw-semibold" variant="light">
+                                    {isBookmarked 
+                                        ? <FaBookmark className="me-4" onClick={handleBookmarkRemove}/> 
+                                        : <FaRegBookmark className="me-4" onClick={handleBookmarkAdd}/>}
+                                        Guardar oferta
+                                    </Button>
+                            </Col>
+                            <Col sm="auto">
+                                <Button className="fw-semibold" variant="danger"><IoFlagOutline size={20} className="me-3"/>Reportar oferta</Button>
+                            </Col>
+                        </Row>
                     </div>
+                    <hr />
+                    <CommentSection idOffer={id!}/>
                 </>
             }
         </>

@@ -55,7 +55,7 @@ export default function RegisterForm({onNext}: Readonly<Props>){
                                 name: values.name,
                                 phone: values.phone,
                                 password: values.password,
-                                rol: 1
+                                role: 1
                             }), 
                                 {
                                     headers: {"Content-Type": "application/json"},

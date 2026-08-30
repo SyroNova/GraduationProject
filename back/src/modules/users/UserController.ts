@@ -16,7 +16,7 @@ export default class UserController {
         next: NextFunction
     ): Promise<void> {
         try {
-            const { document, documentType, name, phone, password, rol } = req.body;
+            const { document, documentType, name, phone, password, role } = req.body;
 
             const auditContext = AuditContextConstructor.get(req)
 
@@ -26,7 +26,7 @@ export default class UserController {
                 name,
                 phone,
                 password,
-                rol
+                role
             }, auditContext);
 
             res.status(201)

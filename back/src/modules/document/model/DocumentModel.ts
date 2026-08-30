@@ -10,11 +10,11 @@ export default class DocumentModel{
         const db = conn || pool
 
         const query = `
-            INSERT INTO documents (file, fileName, mimeType)
-            VALUES (?, ?, ?)
+            INSERT INTO documents (file, fileName, mimeType, fileSize)
+            VALUES (?, ?, ?, ?)
         `
 
-        const values = [document.file, document.fileName, document.mimeType]
+        const values = [document.file, document.fileName, document.mimeType, document.fileSize]
 
         const [result] = await db.execute<ResultSetHeader>(query, values)
 
@@ -35,7 +35,7 @@ export default class DocumentModel{
 
     public async getMetadata(id: number){
         const query = `
-            SELECT idDocument, fileName, mimeType
+            SELECT idDocument, fileName, mimeType, fileSize, createdAt
             FROM documents
             WHERE idDocument = ?
         `
@@ -43,6 +43,20 @@ export default class DocumentModel{
         const [result] = await pool.execute<MetadataResponseDTO[]>(query, [id])
 
         return result[0] ?? null
+    }
+
+    public async getMetadataByIds(ids: number[], placeholders: string, conn?: PoolConnection){
+        const db = conn || pool
+
+        const query = `
+            SELECT idDocument, fileName, mimeType, fileSize, createdAt
+            FROM documents
+            WHERE idDocument IN (${placeholders}) 
+        `
+
+        const [result] = await db.execute<MetadataResponseDTO[]>(query, ids)
+
+        return result
     }
 
     public async get(id: number){
@@ -55,5 +69,16 @@ export default class DocumentModel{
         const [result] = await pool.execute<DocumentDB[]>(query, [id])
 
         return result[0] ?? null
+    }
+
+    public async deleteDocument(idDocument: number){
+        const query = `
+            DELETE FROM documents
+            WHERE idDocument = ?
+        `
+
+        const [result] = await pool.execute<ResultSetHeader>(query, [idDocument])
+
+        return result
     }
 }

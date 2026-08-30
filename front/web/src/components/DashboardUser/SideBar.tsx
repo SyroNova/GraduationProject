@@ -3,6 +3,7 @@ import { FaBell, FaBookmark, FaFileAlt, FaHome, FaQuestionCircle, FaSignOutAlt }
 import { Link, useLocation } from "react-router-dom";
 import "../../css/Dashboard/SideBar.css"
 import UseAuth from "../../hooks/UseAuth";
+import logo from "../../assets/Logo.png";
 
 export default function SideBar(){
     const { logout } = UseAuth()
@@ -11,7 +12,7 @@ export default function SideBar(){
     return (
         <div className="sidebar d-flex flex-column p-3">
             <div className="text-center mb-4">
-                <Image roundedCircle/>
+                <Image src={logo} roundedCircle fluid/>
             </div>
             <hr />
             <Nav className="flex-column gap-2" activeKey={location.pathname}>
@@ -38,6 +39,5 @@ export default function SideBar(){
                 </Nav.Link>
             </Nav>
         </div>
-
     )
 }

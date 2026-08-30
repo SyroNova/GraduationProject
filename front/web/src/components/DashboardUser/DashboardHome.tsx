@@ -6,17 +6,34 @@ import type Offer from "../../types/Offer";
 import type { PaginatedResponse } from "../../types/Pagination";
 import CustomPagination from "./components/CustomPagination";
 import OfferCard from "./components/OfferCard";
+import { CiFilter } from "react-icons/ci";
+import type FilterOffer from "../../types/FilterOffer";
+import DropdownFilters from "./components/DropdownFilters";
+import type { FilterType } from "../../types/FilterOffer";
 
 export default function DashboardHome(){
-    const [search, setSearch] = useState("");
-    const [loading, setLoading] = useState(true);
+    const [filters, setFilters] = useState<FilterOffer | null>(null)
+    const [appliedFilters, setAppliedFilters] = useState<FilterOffer | null>(null)
+    const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [page, setPage] = useState(1);
+    const [showFilters, setShowFilters] = useState(false)
     const [responseOffers, setResponseOffers] = useState<PaginatedResponse<Offer> | null>(null)
 
-    const handleSearchSubmit = (e: React.SubmitEvent) => {
+    const filterNames: {
+        label: string,
+        key: FilterType
+    }[] = [
+        { label: "Ubicación", key: "location" },
+        { label: "Contrato", key: "contractType" },
+        { label: "Salario", key: "salary" },
+        { label: "Habilidades", key: "skills" }
+    ]
+
+    const handleSearchSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault()
-        console.log("hola")
+        setAppliedFilters(filters)
+        setPage(1)
     }
 
     useEffect(() => {
@@ -28,7 +45,13 @@ export default function DashboardHome(){
                 const response = await axios.get<PaginatedResponse<Offer>>('/offers/get', {
                     params: {
                         page: page,
-                        limit: 4
+                        limit: 4,
+                        search: appliedFilters?.search,
+                        location: appliedFilters?.location,
+                        contractType: appliedFilters?.contractType,
+                        salaryMin: appliedFilters?.salaryMin,
+                        salaryMax: appliedFilters?.salaryMax,
+                        skills: appliedFilters?.skills
                     }
                 })
 
@@ -42,22 +65,60 @@ export default function DashboardHome(){
         }
 
         fetchOffers()
-    }, [page])
+    }, [page, appliedFilters])
 
     return(
         <div className="d-flex flex-column gap-5 m-5">
             <Form onSubmit={handleSearchSubmit}>
-                <Form.Group controlId="formSearch">
-                    <Form.Label className="fw-bold fs-5">Encuentra tu proxima oportunidad laboral...</Form.Label>
-                    <InputGroup className="w-50">
-                        <Form.Control
-                            type="text"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                        <Button type="submit" variant="primary"><FaSearch color="white"/></Button>
-                    </InputGroup>
-                </Form.Group>
+                <Row>
+                    <Col className="d-flex align-items-end">
+                        <Form.Group controlId="formSearch">
+                            <Form.Label className="fw-bold fs-5">Encuentra tu proxima oportunidad laboral...</Form.Label>
+                            <InputGroup style={{width: "80%"}}>
+                                <Form.Control
+                                    type="text"
+                                    value={filters?.search}
+                                    onChange={(e) => {
+                                        const value = e.target.value
+                                        setFilters(prev => ({
+                                            ...prev,
+                                            search: value
+                                        }))
+                                    }}
+                                />
+                                <Button type="submit" variant="primary"><FaSearch color="white"/></Button>
+                            </InputGroup>
+                        </Form.Group>
+                        <Button 
+                            type="button" 
+                            className="d-flex align-items-center me-4" 
+                            style={{borderRadius: "10px"}} 
+                            onClick={() => {
+                                setShowFilters(!showFilters)
+                                setFilters(null)
+                            }} 
+                            variant="light"
+                        >
+                            Filtros
+                            <CiFilter className="ms-3"/>
+                        </Button>
+                    </Col>
+                </Row>
+                {showFilters && (
+                    <Row className="mt-3">
+                        <Col className="d-flex justify-content-between">
+                            {filterNames.map(filter => (
+                                <DropdownFilters 
+                                    key={filter.key} 
+                                    variant={filter.label}
+                                    filterKey={filter.key}
+                                    filters={filters}
+                                    setFilters={setFilters}
+                                />
+                            ))}
+                        </Col>
+                    </Row>
+                )}
             </Form>
             {error &&
                 <Alert variant="warning">
@@ -69,7 +130,7 @@ export default function DashboardHome(){
                     <span className="visually-hidden">Loading...</span>
                 </Spinner> 
                 :
-                <Row>
+                <Row className="row-gap-2">
                     {responseOffers?.data.map((offer: Offer) => {
                         return (
                             <Col key={offer.idOffer} xs={12} md={6}>
@@ -79,7 +140,6 @@ export default function DashboardHome(){
                     })}
                 </Row>
             }
-            
             <CustomPagination page={page} totalPages={responseOffers?.totalPages} onChange={setPage}></CustomPagination>
         </div>
     )

@@ -17,3 +17,7 @@ export function getDaysSince(date: string): string {
     
     return days
 }
+
+export function getDateClean(date: string): string{
+    return date.split("T")[0]
+}

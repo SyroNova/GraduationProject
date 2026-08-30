@@ -4,5 +4,5 @@ export interface RegisterUserDTO {
     name: string;
     phone: string;
     password: string;
-    rol: number;
+    role: number;
 }

@@ -5,7 +5,7 @@ import ResumeProfessionalPController from "./controllers/ResumeProfessionalPCont
 import ResumeSkillController from "./controllers/ResumeSkillController.js";
 import ResumeAcademicExController from "./controllers/ResumeAcademicExController.js";
 import ResumeWorkExController from "./controllers/ResumeWorkExController.js";
-import { validateRequestArrayBody, validateRequestBody, validateRequestObjectBody, validateRequestParams, validateUpdateRequest } from "../../middlewares/ValidateMiddleware.js";
+import { validateRequestBody, validateRequestParams, validateUpdateRequest } from "../../middlewares/ValidateMiddleware.js";
 import { authMiddleware } from "../../middlewares/AuthMiddleware.js";
 
 export default class ResumeRouter implements InterfaceRouter{
@@ -102,7 +102,7 @@ export default class ResumeRouter implements InterfaceRouter{
         this.router.post(
             '/add/:id/workEx',
             validateRequestParams(['id']),
-            validateRequestBody(['position', 'dateStart', 'dateEnd', 'company']),
+            validateRequestBody(['position', 'dateStart', 'company']),
             this.workExController.addWorkExperience.bind(this.workExController)
         )
 

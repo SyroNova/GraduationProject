@@ -5,7 +5,7 @@ export default interface WorkExperienceDB extends RowDataPacket {
     idResume: number
     position: string
     dateStart: Date
-    dateEnd: Date
+    dateEnd?: Date
     company: string,
     description?: string
 }

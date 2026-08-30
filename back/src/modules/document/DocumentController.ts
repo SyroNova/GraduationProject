@@ -21,13 +21,14 @@ export default class DocumentController{
                 documents: files.map(file => ({
                     file: file.buffer,
                     fileName: file.originalname,
-                    mimeType: file.mimetype
+                    mimeType: file.mimetype,
+                    fileSize: file.size
                 }))
             }
             
             const result = await this.documentService.createOfferDocument(data)
 
-            res.status(200).json({ message: "Documents created succesfully", ids: result })
+            res.status(200).json({ message: "Documents created succesfully", documents: result })
         } catch (error) {
             next(error)
         }
@@ -47,13 +48,44 @@ export default class DocumentController{
                 documents: files.map(file => ({
                     file: file.buffer,
                     fileName: file.originalname,
-                    mimeType: file.mimetype
+                    mimeType: file.mimetype,
+                    fileSize: file.size
                 }))
             }
 
             const result = await this.documentService.createResumeDocument(data)
 
-            res.status(200).json({ message: "Documents created succesfully", ids: result })
+            res.status(200).json({ message: "Documents created succesfully", documents: result })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    public async getDocument(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ){
+        try {
+            const idDoc = Number(req.params.id)
+
+            if(Number.isNaN(idDoc)){
+                throw new HttpError("IdDocument not valid", 400)
+            }
+
+            const doc = await this.documentService.getDocument(idDoc)
+
+            res.setHeader(
+                "Content-Type",
+                doc.mimeType
+            )
+
+            res.setHeader(
+                "Content-Disposition",
+                `inline; filename="${doc.fileName}"`
+            )
+
+            res.status(200).send(doc.file)
         } catch (error) {
             next(error)
         }
@@ -99,31 +131,21 @@ export default class DocumentController{
         }
     }
 
-    public async getDocument(
+    public async deleteDocumentResume(
         req: Request,
         res: Response,
         next: NextFunction
     ){
         try {
-            const idDoc = Number(req.params.id)
+            const idDocument = Number(req.params.idDocument)
 
-            if(Number.isNaN(idDoc)){
-                throw new HttpError("IdDocument not valid", 400)
+            if(Number.isNaN(idDocument)){
+                throw new HttpError("idDocument not valid", 400)
             }
 
-            const doc = await this.documentService.getDocument(idDoc)
+            const result = await this.documentService.deleteDocumentResume(idDocument)
 
-            res.setHeader(
-                "Content-Type",
-                doc.mimeType
-            )
-
-            res.setHeader(
-                "Content-Disposition",
-                `inline; filename="${doc.fileName}"`
-            )
-
-            res.status(200).send(doc.file)
+            res.status(200).json(result)
         } catch (error) {
             next(error)
         }

@@ -26,7 +26,7 @@ export default class DocumentRouter implements InterfaceRouter{
         this.router.post(
             '/create/resume',
             upload.array('files'),
-            validateRequestBody(['idAttachment']),
+            validateRequestBody(['idResume']),
             validateFiles(),
             this.documentController.createResumeDocument.bind(this.documentController)
         )
@@ -47,6 +47,12 @@ export default class DocumentRouter implements InterfaceRouter{
             '/get/resume/:id',
             validateRequestParams(['id']),
             this.documentController.getResumeDocument.bind(this.documentController)
+        )
+
+        this.router.delete(
+            '/delete/:idDocument',
+            validateRequestParams(['idDocument']),
+            this.documentController.deleteDocumentResume.bind(this.documentController)
         )
     }
 }

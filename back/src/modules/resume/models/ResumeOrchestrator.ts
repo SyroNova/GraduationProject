@@ -106,19 +106,7 @@ export default class ResumeOrchestrator{
     }
 
     public async addSkillToResume(idResume: number, data: SkillsDTO){
-        return this.transactionManager.execute(
-            async (conn) =>{
-                const { skillsModel } = this.getModelsTransaction(conn)
-
-                const resultSkill = await skillsModel.create(data, idResume)
-
-                if(resultSkill.affectedRows === 0){
-                    throw new HttpError("Error creating resume_skill", 500)
-                }
-
-                return "Skill added to resume successfully"
-            }
-        )
+        return await this.skillsModel.create(data, idResume)
     }
 
     public async getSkillFromResume(idResume: number, idSkill: string){

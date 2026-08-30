@@ -50,13 +50,13 @@ export default function VerifyRegisterSMS({onBack}: Readonly<Props>){
     const handleSend = async () => {
         // Recordar cambiar en el backend el sms, para que cambie a isValidated a 1
         try {
-            const response = await axios.post(CODE_SEND_URL, JSON.stringify({ phone: 325 }), { // cambiar por phone una vez hago un registro normal y recordar hacer protected routes
+            const response = await axios.post(CODE_SEND_URL, JSON.stringify({ phone: phone ?? 325 }), { // cambiar por phone una vez hago un registro normal y recordar hacer protected routes
                 headers: {"Content-Type": "application/json"},
                 withCredentials: true
             });
             const code = response?.data?.code;
             console.log(code);
-            setTimeLeft(120); // 🔥 reinicia contador
+            setTimeLeft(120);
             setSent(true);
         } catch (error) {
             if(isAxiosError(error)){

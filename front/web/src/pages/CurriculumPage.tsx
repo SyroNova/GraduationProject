@@ -9,8 +9,6 @@ import UseResume from "../hooks/UseResume";
 
 export default function CurriculumPage() {
     const { step, setStep } = UseResume();
-
-    setStep("start"); // Set the initial step to "start" when the component mounts
     
     return (
         <div className="d-flex justify-content-center align-items-center w-100 vh-100">

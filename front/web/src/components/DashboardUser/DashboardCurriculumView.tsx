@@ -2,21 +2,22 @@ import { useEffect, useState } from "react"
 import type Curriculum from "../../types/Curriculum/Curriculum"
 import axios from "../../api/axios"
 import UseAuth from "../../hooks/UseAuth"
-import { Alert, Button, Card, Col, Row, Spinner } from "react-bootstrap"
+import { Alert, Button, Spinner } from "react-bootstrap"
 import type User from "../../types/User"
-import { GrDocumentText } from "react-icons/gr";
-//import { FaRegEdit } from "react-icons/fa";
 import { FiDownload } from "react-icons/fi";
 import WorkExperienceSection from "./components/Curriculum/WorkExperienceSection"
 import AcademicExperienceSection from "./components/Curriculum/AcademicExperienceSection"
 import SkillSection from "./components/Curriculum/SkillSection"
 import ProfessionalProfileSection from "./components/Curriculum/ProfessionalProfileSection"
 import PersonalDataSection from "./components/Curriculum/PersonalDataSection"
+import type MetadataResponse from "../../types/Curriculum/Document"
+import DocumentSection from "./components/Curriculum/DocumentSection"
 
 export default function DashboardCurriculumView(){
     
     const [curriculum, setCurriculum] = useState<Curriculum | null>(null)
     const [personalData, setPersonalData] = useState<User | null>(null)
+    const [documents, setDocuments] = useState<MetadataResponse[] | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
 
@@ -34,19 +35,27 @@ export default function DashboardCurriculumView(){
         return response.data
     }
 
+    const fetchDocuments = async (idResume: string | undefined) => {
+        const response = await axios.get(`/document/get/resume/${idResume ?? 1}`)
+
+        return response.data
+    }
+
     useEffect(() => {
         const loadData = async () => {
             try {
                 setLoading(true)
                 setError("")
 
-                const [resumeData, userData] = await Promise.all([
+                const [resumeData, userData, documentsData] = await Promise.all([
                     fetchCurriculum(auth?.resumeId),
-                    fetchPersonalData(auth?.id)
+                    fetchPersonalData(auth?.id),
+                    fetchDocuments(auth?.resumeId)
                 ])
 
                 setCurriculum(resumeData)
                 setPersonalData(userData)
+                setDocuments(documentsData)
             } catch (error) {
                 console.log(error)
                 setError("Error loading curriculum information")
@@ -59,11 +68,19 @@ export default function DashboardCurriculumView(){
         loadData()
     }, [auth?.resumeId, auth?.id])
 
-    if(loading || !curriculum){
+    if(loading){
         return (
             <Spinner className="justify-content-center align-self-center m-5" animation="border" role="status" variant="secondary">
                 <span className="visually-hidden">Loading...</span>
             </Spinner> 
+        )
+    }
+
+    if(!curriculum || !personalData || !documents){
+        return (
+            <Alert className="justify-content-center align-self-center m-5" variant="warning">
+                No se pudo cargar la informacion del curriculum
+            </Alert>
         )
     }
 
@@ -81,7 +98,7 @@ export default function DashboardCurriculumView(){
                 </div>
                 <div className="d-flex align-items-center">
                     <Button className="btn-light border-black me-4 d-flex align-items-center">
-                        <FiDownload className="me-2" />
+                        <FiDownload className="me-2"/>
                         Exportar PDF
                     </Button>
                 </div>
@@ -93,27 +110,13 @@ export default function DashboardCurriculumView(){
                 {/**Section for the professional profile */}
                 <ProfessionalProfileSection professionalProfile={curriculum.professionalProfile} setCurriculum={setCurriculum}/>
                 {/**Section for the work experience */}
-                <WorkExperienceSection workExperience={curriculum.workExperience}/>
+                <WorkExperienceSection idResume={auth?.resumeId ?? "1"} workExperience={curriculum.workExperience} setCurriculum={setCurriculum}/>
                 {/**Section for the academic experience */}
-                <AcademicExperienceSection academicExperience={curriculum.academicExperience} />
+                <AcademicExperienceSection idResume={auth?.resumeId ?? "1"} academicExperience={curriculum.academicExperience} setCurriculum={setCurriculum} />
                 {/**Card for the skills info */}
-                <SkillSection skills={curriculum.skills} />
+                <SkillSection idResume={auth?.resumeId ?? "1"} skills={curriculum.skills} setCurriculum={setCurriculum}/>
                 {/**Section for the documents */}
-                <Card className="p-4" style={{width: "80%"}}>
-                    <Card.Body>
-                        <Row className="mb-4 align-items-center" style={{color: "var(--color-text-primary)"}}>
-                            <Col className="me-3" sm={1}>
-                                <GrDocumentText size={45}/>
-                            </Col>
-                            <Col>
-                                <Card.Title className="fs-4 m-0">Archivos adjuntos</Card.Title>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <p className="fw-bold fs-5">No hay archivos adjuntos...</p>
-                        </Row>
-                    </Card.Body>
-                </Card>
+                <DocumentSection idResume={auth?.resumeId ?? "1"} documentsData={documents.length > 0 ? documents : null} setDocuments={setDocuments}/>
             </div>
         </>
     )

@@ -1,4 +1,4 @@
-import { Card } from "react-bootstrap";
+import { Card, Col, Row } from "react-bootstrap";
 import type Offer from "../../../types/Offer";
 import { FaDollarSign } from "react-icons/fa6";
 import { PiSuitcase } from "react-icons/pi";
@@ -25,9 +25,9 @@ export default function OfferCard(props: Readonly<Props>){
 
     const handleBookmarkAdd = async () => {
         try {
-            const response = await axios.post(`/users/favorite/${offer.idOffer}`)
+            await axios.post(`/users/favorite/${offer.idOffer}`)
 
-            window.alert(response.data.message)
+            //window.alert(response.data.message)
 
             setIsBookmarked(true)
         } catch (error) {
@@ -37,9 +37,9 @@ export default function OfferCard(props: Readonly<Props>){
 
     const handleBookmarkRemove = async () => {
         try {
-            const response = await axios.delete(`/users/favorite/${offer.idOffer}`)
+            await axios.delete(`/users/favorite/${offer.idOffer}`)
 
-            window.alert(response.data.message)
+            //window.alert(response.data.message)
 
             setIsBookmarked(false)
         } catch (error) {
@@ -48,25 +48,46 @@ export default function OfferCard(props: Readonly<Props>){
     }
 
     return (
-            <Card className="mb-3" style={{ width: '100%', maxWidth: "45rem" }}>
-                <Card.Body className="ms-3 mt-2">
-                    <Card.Title className="d-flex justify-content-between mb-3" style={{color: "var(--color-text-primary)"}}>
-                        <Link to={`/dashboard/offer/${offer.idOffer}`} style={{  color: 'inherit' }}>
-                            {offer.title}
-                        </Link>
-                        {isBookmarked ? <FaBookmark size={25} onClick={handleBookmarkRemove}/> : <FaRegBookmark size={25} color="gray" onClick={handleBookmarkAdd}/>}
-                    </Card.Title>
-                    <Card.Subtitle className="mb-3 text-muted">{offer.company.companyName}</Card.Subtitle>
-                    <div className="d-flex gap-5 me-5">
-                        <p className="text-muted"><CiLocationOn size={25} /> {offer.location}</p>
-                        <p className="text-success"><FaDollarSign color="black" size={20}/>{offer.salaryMin} {offer.salaryMax ? <>- {offer.salaryMax}</> : <></>}</p>
-                        <p className="text-muted"><PiSuitcase size={25}/> {offer.contractType.charAt(0) + offer.contractType.slice(1).toLowerCase()}</p>
-                    </div>
-                    <Card.Text className="text-end">
-                        {days}
-                    </Card.Text>
-                </Card.Body>
-            </Card>
-        
+        <Card className="mb-5" style={{ width: '100%', maxWidth: "45rem", height: "100%", maxHeight: "15rem", position:"relative" }}>
+            <Card.Body className="ms-3 mt-2">
+                <Card.Title className="d-flex justify-content-between mb-3" style={{color: "var(--color-text-primary)"}}>
+                    <Link to={`/dashboard/offer/${offer.idOffer}`} style={{ color: 'inherit' }}>
+                        {offer.title}
+                    </Link>
+                    {isBookmarked ? <FaBookmark size={25} onClick={handleBookmarkRemove}/> : <FaRegBookmark size={25} color="gray" onClick={handleBookmarkAdd}/>}
+                </Card.Title>
+                <Card.Subtitle className="mb-3 text-muted">{offer.company.companyName}</Card.Subtitle>
+                <Row>
+                    <Col className="text-center">
+                        <CiLocationOn size={25} />
+                        <p className="text-muted">{offer.location}</p>
+                    </Col>
+                    <Col className="text-center">
+                        <FaDollarSign color="black" size={20}/>
+                        <p className="text-success m-0">
+                            {offer.salaryMin}
+                        </p>
+                        {offer.salaryMax ?
+                            <>
+                                <p className="m-0 p-0">-</p>
+                                <p className="text-success">
+                                    {offer.salaryMax}
+                                </p>
+                            </>
+                            : <></>
+                        }
+                    </Col>
+                    <Col className="text-center">
+                        <PiSuitcase size={25}/> 
+                        <p className="text-muted">
+                            {offer.contractType.charAt(0) + offer.contractType.slice(1).toLowerCase()}
+                        </p>
+                    </Col>
+                </Row>
+                <Card.Text className="text-end" style={{position: "absolute", bottom: "10px", right: "10px"}}>
+                    {days}
+                </Card.Text>
+            </Card.Body>
+        </Card>
     )
 }

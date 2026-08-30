@@ -16,7 +16,7 @@ export default class UserRouter implements InterfaceRouter{
     private routes(): void{
         this.router.post(
             '/register',
-            validateRequestBody(['document', 'documentType', 'name', 'phone', 'password', 'rol']),
+            validateRequestBody(['document', 'documentType', 'name', 'phone', 'password', 'role']),
             this.userController.register.bind(this.userController)
         );
 

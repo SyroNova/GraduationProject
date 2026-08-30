@@ -52,8 +52,8 @@ export default function WorkExperienceCard({onNext, onBack}: Readonly<Props>) {
     const schema = yup.object().shape({
         occupation: yup.object().nullable().required("Porfavor ingrese un cargo"),
         company: yup.string().required("Ingrese una empresa"),
-        dateStart: yup.date().required("Fecha de inicio requerida"),
-        dateEnd: yup.date(),
+        dateStart: yup.string().required("Fecha de inicio requerida"),
+        dateEnd: yup.string(),
         description: yup.string()
     })
 
@@ -127,9 +127,9 @@ export default function WorkExperienceCard({onNext, onBack}: Readonly<Props>) {
                                 const newExperience: WorkExperience = {
                                     position: values.occupation?.name ?? "",
                                     company: values.company,
-                                    dateStart: values.dateStart.toString(),
-                                    dateEnd: values.dateEnd ?? null,
-                                    description: values.description ?? null
+                                    dateStart: values.dateStart,
+                                    dateEnd: values.dateEnd || null,
+                                    description: values.description || null
                                 }
 
                                 setResume(prev => ({
@@ -168,6 +168,7 @@ export default function WorkExperienceCard({onNext, onBack}: Readonly<Props>) {
                                                 renderMenuItemChildren={childRender}    
                                                 isInvalid={touched.occupation && !!errors.occupation}
                                             />
+                                            <small className="text-muted">Este servicio usa la <a href="https://ec.europa.eu/esco" target="_blank" rel="noopener noreferrer">clasificación ESCO</a> de la Comisión Europea</small>
                                             <Form.Control.Feedback type="invalid">{errors.occupation}</Form.Control.Feedback>
                                         </Form.Group>
                                     </Col>

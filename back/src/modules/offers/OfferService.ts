@@ -3,6 +3,7 @@ import HttpError from "../../shared/HttpError.js";
 import CreateOfferDTO from "./dto/CreateOfferDTO.js"
 import ResponseGetDTO from "./dto/ResponseGetDTO.js";
 import UpdateOfferDTO from "./dto/UpdateOfferDTO.js";
+import FilterOfferDTO from "./dto/FilterOfferDTO.js";
 import OfferModel from "./models/OfferModel.js";
 import { TypeContract } from "./types/TypeContract.js";
 import TransactionManager from "../../shared/TransactionManager.js";
@@ -50,10 +51,10 @@ export default class OfferService{
         )
     }
 
-    public async get(page: number, limit: number, idUser: number){
+    public async get(page: number, limit: number, idUser: number, filters?: FilterOfferDTO){
         const offset = (page - 1) * limit
 
-        const response = await this.offerModel.get(offset, limit, idUser);
+        const response = await this.offerModel.get(offset, limit, idUser, filters);
 
         const totalPages = Math.ceil(response.total / limit)
 

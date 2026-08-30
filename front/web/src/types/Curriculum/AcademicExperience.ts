@@ -3,6 +3,6 @@ export default interface AcademicExperience {
     degree: string;
     institution: string;
     dateStart: string;
-    dateEnd?: string;
-    description?: string;
+    dateEnd?: string | null;
+    description?: string | null;
 }

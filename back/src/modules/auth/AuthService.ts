@@ -28,7 +28,7 @@ export default class AuthService{
         const user: LoginResponseDTO = {
             idUser: userDB.idUser,
             passwordHash: userDB.passwordHash,
-            role: userDB.role.name.toUpperCase()
+            role: userDB.role as string
         }
 
         const isMatch = await this.verifyPassword(loginDTO.password, user.passwordHash);

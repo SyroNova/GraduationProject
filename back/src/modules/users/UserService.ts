@@ -16,6 +16,7 @@ import UserOfferFav from "./models/UserOfferFav.js";
 import { OfferDB } from "../offers/types/OfferDB.js";
 import { OfferDTO } from "../offers/dto/OfferDTO.js";
 import ResponseGetDTO from "../offers/dto/ResponseGetDTO.js";
+import SessionModel from "../auth/model/SessionModel.js";
 
 export default class UserService{
 
@@ -29,7 +30,7 @@ export default class UserService{
     public async register(userData: RegisterUserDTO, auditContext: AuditContext) {
         return this.transactionManager.execute(
             async (conn) => {
-                const { userModel, resumeModel } = this.getAuditModel(conn)
+                const { userModel, resumeModel, tokenService } = this.getAuditModel(conn)
                 if(!this.IsDocumentType(userData.documentType)){
                     throw new HttpError("TypeCC is not a correct type", 400)
                 }
@@ -58,18 +59,18 @@ export default class UserService{
                     throw new HttpError("Resume table could not be created", 500)
                 }
 
-                const roleDb = await this.getRole(userData.rol, userModel)
+                const roleDb = await this.getRole(userData.role, userModel)
 
                 user.role = roleDb
 
-                const accessToken = this.tokenService.generateAccessToken({ id: user.idUser, role: user.role.name });
+                const accessToken = tokenService.generateAccessToken({ id: user.idUser, role: user.role.name });
 
-                const refreshToken = this.tokenService.generateRefreshToken();
+                const refreshToken = tokenService.generateRefreshToken();
 
                 const expiresAt = new Date()
                 expiresAt.setDate(expiresAt.getDate() + 7);
 
-                await this.tokenService.saveRefreshToken({ idUser: user.idUser, refreshToken: refreshToken, createdAt: new Date(), expiresAt: expiresAt, role: user.role.name })
+                await tokenService.saveRefreshToken({ idUser: user.idUser, refreshToken: refreshToken, createdAt: new Date(), expiresAt: expiresAt, role: user.role.name })
 
                 return { accessToken, refreshToken, idResume: resume.insertId, idUser: user.idUser, role: user.role.name };
             },
@@ -234,9 +235,11 @@ export default class UserService{
     }
 
     private getAuditModel(conn: PoolConnection){
+        const sessionModel = new SessionModel(conn)
         return {
             userModel: new UserModel(conn),
-            resumeModel: new ResumeModel(conn)
+            resumeModel: new ResumeModel(conn),
+            tokenService: new TokenService(sessionModel)
         }
     }
 }

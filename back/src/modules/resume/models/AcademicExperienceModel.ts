@@ -11,7 +11,7 @@ export default class AcademicExperienceModel{
 
     public async create(idResume: number, academicExperience: AcademicExperienceDTO){
         const query = `
-            INSERT INTO academic_experience (idResume, position, company, dateStart, dateEnd, description)
+            INSERT INTO academic_experience (idResume, degree, institution, dateStart, dateEnd, description)
             VALUES (?, ?, ?, ?, ?, ?)
         `
 

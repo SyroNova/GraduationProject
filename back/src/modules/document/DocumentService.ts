@@ -36,7 +36,12 @@ export default class DocumentService{
 
                     ids.push(resultDoc.insertId)
                 }
-                return ids
+
+                const placeholders = ids.map(() => "?").join(", ")
+
+                const docs = await this.docModel.getMetadataByIds(ids, placeholders, conn)
+
+                return docs
             }
         )
     }
@@ -62,7 +67,12 @@ export default class DocumentService{
 
                     ids.push(resultDoc.insertId)
                 }
-                return ids
+
+                const placeholders = ids.map(() => "?").join(", ")
+
+                const docs = await this.docModel.getMetadataByIds(ids, placeholders, conn)
+
+                return docs
             }
         )
     }
@@ -71,7 +81,7 @@ export default class DocumentService{
         const ids = await this.docOfferModel.getDocumentsOffer(idOffer)
 
         if(ids.length === 0){
-            throw new HttpError("No documents found for this offer", 404)
+            return []
         }
 
         const docs: MetadataResponseDTO[] = []
@@ -93,7 +103,7 @@ export default class DocumentService{
         const ids = await this.docResumeModel.getDocumentsResume(idAttachment)
 
         if(ids.length === 0){
-            throw new HttpError("No documents found for this attachment", 404)
+            return []
         }
 
         const docs: MetadataResponseDTO[] = []
@@ -117,5 +127,15 @@ export default class DocumentService{
             throw new HttpError("Document not found", 404)
         }
         return result
+    }
+
+    public async deleteDocumentResume(idDocument: number){
+        const result = await this.docModel.deleteDocument(idDocument)
+
+        if(result.affectedRows === 0){
+            throw new HttpError("Error deleting document ", 500)
+        }
+
+        return { message: "Document deleted successfully" }
     }
 }

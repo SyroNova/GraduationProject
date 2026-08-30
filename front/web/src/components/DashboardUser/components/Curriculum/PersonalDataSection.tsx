@@ -47,6 +47,7 @@ export default function PersonalDataSection({ personalData, setPersonalData }: R
                             personalData={personalData!}
                             setPersonalData={setPersonalData}
                             onSaveSuccess={() => {
+                                setIsEditing(false)
                                 setHasChanges(false)
                                 setSaved(true)
 

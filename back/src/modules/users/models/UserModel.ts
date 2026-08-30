@@ -17,7 +17,7 @@ export default class UserModel{
             INSERT INTO user (document, documentType, name, phone, passwordHash, idRole)
             VALUES (?, ?, ?, ?, ?, ?)
         `;
-        const values = [user.document, user.documentType, user.name, user.phone, user.password, user.rol];
+        const values = [user.document, user.documentType, user.name, user.phone, user.password, user.role];
         const [result] = await this.db.execute<ResultSetHeader>(query, values);
 
         return result;

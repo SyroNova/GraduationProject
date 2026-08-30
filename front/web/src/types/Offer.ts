@@ -18,4 +18,4 @@ interface CompanyOffer{
     companyLocation: string
 }
 
-type TypeContract = 'TIEMPO_COMPLETO' | 'MEDIO_TIEMPO' | 'POR_HORAS' | 'TEMPORAL';
+export type TypeContract = 'TIEMPO_COMPLETO' | 'MEDIO_TIEMPO' | 'POR_HORAS' | 'TEMPORAL';
