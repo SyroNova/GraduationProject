@@ -24,8 +24,8 @@ export default function AcademicExperienceCard({onNext, onBack}: Readonly<Props>
     const schema = yup.object().shape({
         degree: yup.string().required("Porfavor ingrese el titulo obtenido"),
         institution: yup.string().required("Ingrese una institución"),
-        dateStart: yup.date().required("Fecha de inicio requerida"),
-        dateEnd: yup.date(),
+        dateStart: yup.string().required("Fecha de inicio requerida"),
+        dateEnd: yup.string(),
         description: yup.string()
     })
 
@@ -73,9 +73,9 @@ export default function AcademicExperienceCard({onNext, onBack}: Readonly<Props>
                         const newExperience: AcademicExperience = {
                             degree: values.degree,
                             institution: values.institution,
-                            dateStart: values.dateStart.toString(),
-                            dateEnd: values.dateEnd ?? null,
-                            description: values.description ?? null
+                            dateStart: values.dateStart,
+                            dateEnd: values.dateEnd || null,
+                            description: values.description || null
                         }
 
                         setResume(prev => ({
