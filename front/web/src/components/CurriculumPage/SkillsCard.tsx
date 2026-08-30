@@ -168,7 +168,7 @@ export default function SkillsCard({onBack}: Readonly<Props>) {
                                     emptyLabel="No se encontraron mas habilidades."
                                     isInvalid={touched.skill && !!errors.skill}
                                 />
-                            </Form.Group>
+                                <small className="text-muted">Este servicio usa la <a href="https://ec.europa.eu/esco" target="_blank" rel="noopener noreferrer">clasificación ESCO</a> de la Comisión Europea</small>                            </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label className="fw-bold">Selecciona el nivel de la habilidad</Form.Label>
                                 <Form.Select
