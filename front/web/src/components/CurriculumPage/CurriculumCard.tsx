@@ -19,7 +19,10 @@ export default function CurriculumCard({onNext}: Readonly<Props>) {
                     <p className="fw-bold text-center" style={{color: "rgb(157, 157, 157)"}}>Para postularse a un empleo, una hoja de vida completa y sustanciosa es muy importante</p>
                 </div>
                 <div className="d-flex align-items-center gap-4">
-                    <Button className="my-buttonCurriculum" onClick={onNext} style={{ width: '20rem', height: '15rem' }}>
+                    <Button className="my-buttonCurriculum" onClick={() => {
+                        console.log("s")
+                        onNext()
+                    }} style={{ width: '20rem', height: '15rem' }}>
                         <div className="d-flex flex-column">
                             <p className="fs-5 fw-bold text-start" style={{color: "var(--color-text-primary)"}}>Completar hoja de vida ahora</p>
                             <p className="fw-bold text-start" style={{color: "rgb(102, 121, 150)"}}>Solo te tomará 10-15 minutos. Podrás guardar tu progreso en cualquier momento.</p>
