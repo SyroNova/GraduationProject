@@ -87,7 +87,7 @@ export default function PersonalInfoCard({onNext, onBack}: Readonly<Props>) {
                                 return;
                             }
 
-                            const response = await axios.patch(`/users/update/${auth?.id ?? 5}`, {
+                            const response = await axios.patch(`/users/patch/${auth?.id ?? 5}`, {
                                 name: values.name,
                                 document: values.document,
                                 documentType: values.documentType,
