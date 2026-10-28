@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hoja de vida - Juan Pérez</title>
+        <style>
+            :root {
+                --ink: #252a2e;
+                --muted: #5f6872;
+                --accent: #173a63;
+                --rule: #d8dde2
+            }
+
+            * {
+                box-sizing: border-box
+            }
+
+            body {
+                margin: 0;
+                padding: 28px 16px;
+                background: #eef1f4;
+                color: var(--ink);
+                font: 10pt/1.35 Calibri, Carlito, Arial, sans-serif
+            }
+
+            .toolbar {
+                width: 210mm;
+                max-width: 100%;
+                margin: 0 auto 14px;
+                display: flex;
+                justify-content: flex-end
+            }
+
+            .print-button {
+                border: 0;
+                border-radius: 5px;
+                padding: 9px 16px;
+                background: var(--accent);
+                color: #fff;
+                font: 600 10pt Calibri, Carlito, Arial, sans-serif;
+                cursor: pointer
+            }
+
+            .print-button:hover {
+                background: #244e7c
+            }
+
+            .page {
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0 auto;
+                padding: 19mm 20mm 18mm;
+                background: #fff;
+                box-shadow: 0 3px 18px rgba(24, 38, 52, .12)
+            }
+
+            h1 {
+                margin: 0 0 11px;
+                color: var(--accent);
+                font-size: 14pt;
+                line-height: 1.2;
+                font-weight: 700;
+                letter-spacing: .35px;
+                text-align: center
+            }
+
+            h2 {
+                margin: 13px 0 6px;
+                padding-bottom: 3px;
+                border-bottom: 1px solid var(--rule);
+                color: var(--accent);
+                font-size: 12pt;
+                line-height: 1.2;
+                font-weight: 700;
+                letter-spacing: .15px
+            }
+
+            p {
+                margin: 0 0 4px
+            }
+
+            .personal p {
+                margin: 0 0 3px
+            }
+
+            .field,
+            .entry-heading {
+                font-weight: 700
+            }
+
+            .summary {
+                text-align: justify
+            }
+
+            .entry {
+                margin: 0 0 8px
+            }
+
+            .entry-heading {
+                margin-bottom: 3px
+            }
+
+            .date {
+                color: var(--muted);
+                font-weight: 400;
+                white-space: nowrap
+            }
+
+            ul {
+                margin: 3px 0 0;
+                padding-left: 18px
+            }
+
+            li {
+                margin: 0 0 2px;
+                padding-left: 1px
+            }
+
+            .education .entry {
+                margin-bottom: 7px
+            }
+
+            .education .entry-heading {
+                margin-bottom: 2px
+            }
+
+            .skills {
+                line-height: 1.65
+            }
+
+            @page {
+                size: A4;
+                margin: 0
+            }
+
+            @media print {
+
+                html,
+                body {
+                    width: 210mm;
+                    margin: 0;
+                    padding: 0;
+                    background: #fff;
+                    print-color-adjust: exact;
+                    -webkit-print-color-adjust: exact
+                }
+
+                .toolbar {
+                    display: none !important
+                }
+
+                .page {
+                    width: 210mm;
+                    min-height: 297mm;
+                    margin: 0;
+                    padding: 19mm 20mm 18mm;
+                    box-shadow: none
+                }
+
+                h2,
+                .entry,
+                p,
+                li {
+                    break-inside: avoid
+                }
+            }
+
+            @media screen and (max-width:700px) {
+                body {
+                    padding: 12px 6px
+                }
+
+                .page {
+                    width: 100%;
+                    min-height: auto;
+                    padding: 28px 22px
+                }
+
+                .toolbar {
+                    width: 100%
+                }
+
+                .date {
+                    white-space: normal
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="toolbar"><button class="print-button" type="button" onclick="window.print()">Imprimir / Guardar como
+                PDF</button></div>
+        <main class="page">
+            <h1>HOJA DE VIDA</h1>
+            <section class="personal">
+                <h2>INFORMACIÓN PERSONAL</h2>
+                <p><span class="field">NOMBRE:</span> {{fullName}}</p>
+                <p><span class="field">PROFESIÓN:</span> {{profession}}</p>
+                <p><span class="field">CORREO:</span> <a href="mailto:{{email}}"
+                        style="color:inherit;text-decoration:none">{{email}}</a></p>
+                <p><span class="field">TELÉFONO:</span> {{phone}}</p>
+                <p><span class="field">CIUDAD:</span> {{city}}</p>
+                <p><span class="field">DOCUMENTO:</span> {{document}}</p>
+            </section>
+            <section>
+                <h2>RESUMEN PROFESIONAL</h2>
+                <p class="summary">{{resume}}.</p>
+            </section>
+            <section>
+                <h2>EXPERIENCIA LABORAL</h2>
+                {{#each experiences}}
+                <div class="entry">
+                    <p class="entry-heading">
+                        {{position}}
+                        <span class="date">({{startDate}} – {{endDate}})</span>
+                    </p>
+                    <p>{{description}}</p>
+                </div>
+                {{/each}}
+            </section>
+            <section class="education">
+                <h2>EXPERIENCIA ACADÉMICA</h2>
+                <div class="entry">
+                    <p class="entry-heading">Bachillerato <span class="date">(2017 – 2018)</span></p>
+                    <p>Formación académica de educación media.</p>
+                </div>
+                <div class="entry">
+                    <p class="entry-heading">Ingeniería de sistemas <span class="date">(2019 – 2025)</span></p>
+                    <p>Formación profesional en ingeniería de sistemas.</p>
+                </div>
+                <div class="entry">
+                    <p class="entry-heading">Bachiller <span class="date">(2019 – 2025)</span></p>
+                    <p>Cursos y formación complementaria.</p>
+                </div>
+            </section>
+            <section>
+                <h2>HABILIDADES</h2>
+                {{#each skills}}
+                <p class="skills">{{name}} - {{level}}</p>
+                {{/each}}
+            </section>
+        </main>
+    </body>
+
+</html>
