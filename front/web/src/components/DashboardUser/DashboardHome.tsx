@@ -32,6 +32,7 @@ export default function DashboardHome(){
 
     const handleSearchSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault()
+        console.log(filters)
         setAppliedFilters(filters)
         setPage(1)
     }
