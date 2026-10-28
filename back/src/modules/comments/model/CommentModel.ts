@@ -2,8 +2,13 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import pool from "../../../config/Database.js";
 import CommentDTO from "../dto/CommentDTO.js";
 import CommentDB from "../types/CommentDB.js";
+import { Pool, PoolConnection } from "mysql2/promise";
 
 export default class CommentModel{
+    constructor(
+        private readonly db: Pool | PoolConnection = pool
+    ){}
+
     public async createCommentUser(idUser: number, commentData: CommentDTO){
         const query = `
             INSERT INTO comments (idOffer, idUser, idParentComment, content)
@@ -12,7 +17,7 @@ export default class CommentModel{
 
         const values = [commentData.idOffer, idUser, commentData.idParentComment ?? null, commentData.content]
 
-        const [result] = await pool.execute<ResultSetHeader>(query, values)
+        const [result] = await this.db.execute<ResultSetHeader>(query, values)
 
         return result
     }
@@ -25,7 +30,7 @@ export default class CommentModel{
 
         const values = [commentData.idOffer, idCompany, commentData.content]
 
-        const [result] = await pool.execute<ResultSetHeader>(query, values)
+        const [result] = await this.db.execute<ResultSetHeader>(query, values)
 
         return result
     }
@@ -38,14 +43,15 @@ export default class CommentModel{
             WHERE idComment = ? AND idOffer = ?
         `
 
-        const [result] = await pool.execute<RowDataPacket[]>(query, [idCommnet, idOffer])
+        const [result] = await this.db.execute<RowDataPacket[]>(query, [idCommnet, idOffer])
 
         return result[0] ?? null
     }
 
     public async getById(idComment: number){
         const query = `
-            SELECT 
+            SELECT
+                cmm.idUser,
                 cmm.idComment,
                 cmm.content,
                 cmm.createdAt,
@@ -55,20 +61,21 @@ export default class CommentModel{
                     WHEN cmm.idCompany IS NOT NULL THEN 'company'
                     ELSE 'user'
                 END AS authorType
-            FROM thesis.comments cmm
-            LEFT JOIN thesis.company c ON c.idCompany = cmm.idCompany
-            LEFT JOIN thesis.user u ON u.idUser = cmm.idUser
+            FROM comments cmm
+            LEFT JOIN company c ON c.idCompany = cmm.idCompany
+            LEFT JOIN user u ON u.idUser = cmm.idUser
             WHERE cmm.idComment = ?;
         `
 
-        const [result] = await pool.execute<CommentDB[]>(query, [idComment])
+        const [result] = await this.db.execute<CommentDB[]>(query, [idComment])
 
         return result[0] ?? null
     }
 
     public async getByOfferId(idOffer: number){
         const query = `
-            SELECT 
+            SELECT
+                cmm.idUser,
                 cmm.idComment,
                 cmm.content,
                 cmm.createdAt,
@@ -78,13 +85,13 @@ export default class CommentModel{
                     WHEN cmm.idCompany IS NOT NULL THEN 'company'
                     ELSE 'user'
                 END AS authorType
-            FROM thesis.comments cmm
-            LEFT JOIN thesis.company c ON c.idCompany = cmm.idCompany
-            LEFT JOIN thesis.user u ON u.idUser = cmm.idUser
+            FROM comments cmm
+            LEFT JOIN company c ON c.idCompany = cmm.idCompany
+            LEFT JOIN user u ON u.idUser = cmm.idUser
             WHERE cmm.idOffer = ?;
         `
 
-        const [result] = await pool.execute<CommentDB[]>(query, [idOffer])
+        const [result] = await this.db.execute<CommentDB[]>(query, [idOffer])
 
         return result
     }
@@ -99,7 +106,7 @@ export default class CommentModel{
             )
         `
 
-        const [result] = await pool.execute<ResultSetHeader>(query, [idComment, idUser, idCompany])
+        const [result] = await this.db.execute<ResultSetHeader>(query, [idComment, idUser, idCompany])
 
         return result
     }
