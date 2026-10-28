@@ -24,9 +24,6 @@ export default function DashboardOffer(){
     const [documents, setDocuments] = useState<MetadataResponse[]>([])
     const [isBookmarked, setIsBookmarked] = useState(offer?.isFavorite ?? false)
 
-    console.log(isBookmarked)
-
-
     const fetchOffer = async (idOffer: string) => {
         const response = await axios.get(`/offers/get/${idOffer}`)
 
@@ -85,27 +82,17 @@ export default function DashboardOffer(){
 
     const days = getDaysSince(offer?.createdAt)
 
-    const handleBookmarkAdd = async () => {
+    const handleBookmark = async () => {
         try {
-            await axios.post(`/users/favorite/${offer.idOffer}`)
-
-            //window.alert(response.data.message)
-
-            setIsBookmarked(true)
+            if(isBookmarked){
+                await axios.delete(`/users/favorite/${offer.idOffer}`)
+                setIsBookmarked(false)
+            } else {
+                await axios.post(`/users/favorite/${offer.idOffer}`);
+                setIsBookmarked(true);
+            }
         } catch (error) {
-            console.log(error)
-        }
-    }
-
-    const handleBookmarkRemove = async () => {
-        try {
-            await axios.delete(`/users/favorite/${offer.idOffer}`)
-
-            //window.alert(response.data.message)
-
-            setIsBookmarked(false)
-        } catch (error) {
-            console.log(error)
+            console.log("Error al actualizar favoritos", error)
         }
     }
 
@@ -174,12 +161,13 @@ export default function DashboardOffer(){
                         </div>
                         <Row>
                             <Col sm="auto">
-                                <Button className="fw-semibold" variant="light">
+                                <Button className="fw-semibold" variant="light" onClick={handleBookmark}>
                                     {isBookmarked 
-                                        ? <FaBookmark className="me-4" onClick={handleBookmarkRemove}/> 
-                                        : <FaRegBookmark className="me-4" onClick={handleBookmarkAdd}/>}
-                                        Guardar oferta
-                                    </Button>
+                                        ? <FaBookmark className="me-4"/> 
+                                        : <FaRegBookmark className="me-4"/>
+                                    }
+                                    {isBookmarked ? "Oferta guardada" : "Guardar oferta"}
+                                </Button>
                             </Col>
                             <Col sm="auto">
                                 <Button className="fw-semibold" variant="danger"><IoFlagOutline size={20} className="me-3"/>Reportar oferta</Button>
