@@ -64,18 +64,20 @@ export default function OfferCard(props: Readonly<Props>){
                     </Col>
                     <Col className="text-center">
                         <FaDollarSign color="black" size={20}/>
-                        <p className="text-success m-0">
-                            {offer.salaryMin}
-                        </p>
-                        {offer.salaryMax ?
-                            <>
-                                <p className="m-0 p-0">-</p>
-                                <p className="text-success">
-                                    {offer.salaryMax}
-                                </p>
-                            </>
-                            : <></>
-                        }
+                        <div className="d-flex justify-content-center">
+                            <p className="text-success m-0">
+                                {offer.salaryMin}
+                            </p>
+                            {offer.salaryMax ?
+                                <>
+                                    <p className="m-0 p-0">-</p>
+                                    <p className="text-success">
+                                        {offer.salaryMax}
+                                    </p>
+                                </>
+                                : <></>
+                            }
+                        </div>
                     </Col>
                     <Col className="text-center">
                         <PiSuitcase size={25}/> 
