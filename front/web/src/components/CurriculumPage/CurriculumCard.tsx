@@ -20,7 +20,6 @@ export default function CurriculumCard({onNext}: Readonly<Props>) {
                 </div>
                 <div className="d-flex align-items-center gap-4">
                     <Button className="my-buttonCurriculum" onClick={() => {
-                        console.log("s")
                         onNext()
                     }} style={{ width: '20rem', height: '15rem' }}>
                         <div className="d-flex flex-column">
