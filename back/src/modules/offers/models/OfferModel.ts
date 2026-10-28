@@ -87,8 +87,8 @@ export default class OfferModel {
         const search = filters?.search?.trim() || null;
         const location = filters?.location?.trim() || null;
         const contractType = Array.isArray(filters?.contractType)
-            ? filters.contractType.filter(Boolean).join(',')
-            : (filters?.contractType?.trim() || null);
+            ? filters.contractType.join(',')
+            : null;
         const salaryMin = filters?.salaryMin !== undefined && !Number.isNaN(Number(filters.salaryMin)) ? Number(filters.salaryMin) : null;
         const salaryMax = filters?.salaryMax !== undefined && !Number.isNaN(Number(filters.salaryMax)) ? Number(filters.salaryMax) : null;
         const skills = Array.isArray(filters?.skills)
