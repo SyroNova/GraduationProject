@@ -3,7 +3,7 @@ import type { TypeContract } from "./Offer";
 export default interface FilterOffer {
     search?: string;
     location?: string;
-    contractType?: TypeContract[] | string;
+    contractType?: TypeContract[];
     salaryMin?: number;
     salaryMax?: number;
     skills?: string[] | string;
