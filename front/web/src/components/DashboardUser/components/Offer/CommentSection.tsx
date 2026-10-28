@@ -4,6 +4,7 @@ import CommentCard from "./CommentCard"
 import { useState } from "react"
 import axios from "../../../../api/axios"
 import type Comment from "../../../../types/Comment"
+import UseAuth from "../../../../hooks/UseAuth"
 
 type Props = {
     idOffer: string
@@ -16,6 +17,7 @@ export default function CommentSection({ idOffer }: Readonly<Props>){
     const [loadingComments, setLoadingComments] = useState(false)
     const [textarea, setTextarea] = useState("")
     const [error, setError] = useState("")
+    const { auth } = UseAuth()
 
     const buildTree = (
         comments: Comment[],
@@ -141,7 +143,8 @@ export default function CommentSection({ idOffer }: Readonly<Props>){
                             comments.map(comment => (
                                 <Card className="mb-1" key={comment.idComment} style={{width: "65%"}}>
                                     <Card.Body>
-                                        <CommentCard 
+                                        <CommentCard
+                                            idUser={auth?.id ?? "5"}
                                             idOffer={idOffer}
                                             data={comment}
                                             replyingTo={isReplying}
