@@ -1,4 +1,5 @@
 export default interface Comment{
+    idUser: number
     idComment: number
     content: string
     createdAt: string
