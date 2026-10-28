@@ -55,7 +55,7 @@ export default function DashboardSaves(){
                         <span className="visually-hidden">Loading...</span>
                     </Spinner> 
                     :
-                    <Row>
+                    <Row className="row-gap-2">
                         {responseOffers?.data.map((offer: Offer) => {
                             return (
                                 <Col key={offer.idOffer} xs={12} md={6}>
