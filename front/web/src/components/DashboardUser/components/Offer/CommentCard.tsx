@@ -6,6 +6,7 @@ import axios from "../../../../api/axios"
 import { isAxiosError } from "axios"
 
 type Props = {
+    idUser: string
     idOffer: string
     data: CommentNode
     parentAuthorName?: string
@@ -14,8 +15,9 @@ type Props = {
     onReplyCreated: (newComment: CommentNode) => void
 }
 
-export default function CommentCard({ idOffer, data, parentAuthorName, replyingTo, setReplyingTo, onReplyCreated }: Readonly<Props>){
+export default function CommentCard({ idUser, idOffer, data, parentAuthorName, replyingTo, setReplyingTo, onReplyCreated }: Readonly<Props>){
     const [textarea, setTextarea] = useState("")
+    console.log(data)
     
     const handleSubmitReply = async () => {
         try {
@@ -61,14 +63,16 @@ export default function CommentCard({ idOffer, data, parentAuthorName, replyingT
                     setReplyingTo(data.idComment)
                 }}
             >
-                {replyingTo === data.idComment 
-                    ? "Cancelar respuesta"
-                    : `Responder a ${data.authorName}`
+                {data.idUser !== Number(idUser) && (
+                    replyingTo === data.idComment 
+                        ? "Cancelar respuesta"
+                        : `Responder a ${data.authorName}`)
                 }
             </Button>
             <div className="ms-4 border-start ps-3">
                 {data.children.map(child => (
                     <CommentCard 
+                        idUser={idUser}
                         idOffer={idOffer}
                         key={child.idComment} 
                         data={child} 
