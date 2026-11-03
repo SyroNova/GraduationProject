@@ -1,10 +1,12 @@
 import { RowDataPacket } from "mysql2"
+import { TargetType } from "./TargetType.js"
+import { ReporterType } from "./ReporterType.js"
 
 export default interface ReportDB extends RowDataPacket{
     idReport: number
-    reporterType: string
+    reporterType: ReporterType
     reporterId: number
-    targetType: string
+    targetType: TargetType
     targetId: number
     reason: string
     status: string
