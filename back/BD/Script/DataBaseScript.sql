@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `thesis`.`user` (
     FOREIGN KEY (`idRole`)
     REFERENCES `thesis`.`role` (`idRole`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 17
+AUTO_INCREMENT = 29
 DEFAULT CHARACTER SET = utf8mb3
 COMMENT = 'Terminar de hacer el typeCC ';
 
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `thesis`.`resume` (
     REFERENCES `thesis`.`user` (`idUser`)
     ON DELETE CASCADE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 2
+AUTO_INCREMENT = 14
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `thesis`.`academic_experience` (
     REFERENCES `thesis`.`resume` (`idResume`)
     ON DELETE CASCADE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 3
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `thesis`.`audit` (
   `userAgent` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`idAudit`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 36
+AUTO_INCREMENT = 49
 DEFAULT CHARACTER SET = utf8mb3
 COMMENT = 'Finish the enum of actorType';
 
@@ -157,17 +157,22 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `thesis`.`comments`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `thesis`.`comments` (
-  `idComments` INT NOT NULL AUTO_INCREMENT,
-  `idOffers` INT NOT NULL,
-  `idUser` INT NOT NULL,
+  `idComment` INT NOT NULL AUTO_INCREMENT,
+  `idOffer` INT NOT NULL,
+  `idUser` INT NULL DEFAULT NULL,
+  `idCompany` INT NULL DEFAULT NULL,
+  `idParentComment` INT NULL DEFAULT NULL,
   `content` VARCHAR(45) NOT NULL,
   `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `isDeleted` TINYINT NOT NULL DEFAULT '0',
-  PRIMARY KEY (`idComments`),
-  INDEX `fk_Comments_Offers1_idx` (`idOffers` ASC) VISIBLE,
+  PRIMARY KEY (`idComment`),
+  INDEX `fk_Comments_Offers1_idx` (`idOffer` ASC) VISIBLE,
   INDEX `fk_Comments_User1_idx` (`idUser` ASC) VISIBLE,
+  INDEX `fk_comments_company1_idx` (`idCompany` ASC) VISIBLE,
+  CONSTRAINT `fk_comments_company1`
+    FOREIGN KEY (`idCompany`)
+    REFERENCES `thesis`.`company` (`idCompany`),
   CONSTRAINT `fk_Comments_Offers1`
-    FOREIGN KEY (`idOffers`)
+    FOREIGN KEY (`idOffer`)
     REFERENCES `thesis`.`offers` (`idOffer`)
     ON DELETE CASCADE,
   CONSTRAINT `fk_Comments_User1`
@@ -175,6 +180,7 @@ CREATE TABLE IF NOT EXISTS `thesis`.`comments` (
     REFERENCES `thesis`.`user` (`idUser`)
     ON DELETE CASCADE)
 ENGINE = InnoDB
+AUTO_INCREMENT = 11
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -191,6 +197,25 @@ CREATE TABLE IF NOT EXISTS `thesis`.`documents` (
   PRIMARY KEY (`idDocument`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 6
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `thesis`.`notifications`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `thesis`.`notifications` (
+  `idNotification` INT NOT NULL AUTO_INCREMENT,
+  `recipientId` INT NOT NULL,
+  `recipientType` ENUM('USER', 'COMPANY') NOT NULL,
+  `type` ENUM('COMMENT_REPORTED', 'COMMENT_REPLY', 'OFFER_COMMENT', 'OFFER_REPORTED', 'COMPANY_REPORTED') NULL DEFAULT NULL,
+  `referenceId` INT NOT NULL,
+  `message` VARCHAR(255) NOT NULL,
+  `isRead` TINYINT(1) NULL DEFAULT '0',
+  `createdAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `readAt` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`idNotification`),
+  INDEX `idx_recipient` (`recipientId` ASC, `recipientType` ASC, `isRead` ASC) VISIBLE)
+ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -241,7 +266,7 @@ CREATE TABLE IF NOT EXISTS `thesis`.`professional_profile` (
     REFERENCES `thesis`.`resume` (`idResume`)
     ON DELETE CASCADE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 3
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -249,19 +274,16 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `thesis`.`reports`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `thesis`.`reports` (
-  `idReports` INT NOT NULL AUTO_INCREMENT,
-  `idUser` INT NOT NULL,
+  `idReport` INT NOT NULL AUTO_INCREMENT,
+  `reporterType` ENUM('USER', 'COMPANY') NOT NULL,
+  `reporterId` INT NOT NULL,
   `targetType` ENUM('USER', 'COMPANY', 'OFFER', 'COMMENT') NOT NULL,
   `targetId` INT NOT NULL,
   `reason` MEDIUMTEXT NOT NULL,
   `status` ENUM('PENDING', 'REVIWED', 'RESOLVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
   `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `priority` ENUM('LOW', 'MEDIUM', 'HIGH') NOT NULL DEFAULT 'LOW',
-  PRIMARY KEY (`idReports`),
-  INDEX `fk_Reports_User1_idx` (`idUser` ASC) VISIBLE,
-  CONSTRAINT `fk_Reports_User1`
-    FOREIGN KEY (`idUser`)
-    REFERENCES `thesis`.`user` (`idUser`))
+  PRIMARY KEY (`idReport`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
@@ -335,7 +357,7 @@ CREATE TABLE IF NOT EXISTS `thesis`.`session` (
     FOREIGN KEY (`idUser`)
     REFERENCES `thesis`.`user` (`idUser`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 3
+AUTO_INCREMENT = 15
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -371,7 +393,7 @@ CREATE TABLE IF NOT EXISTS `thesis`.`sms_codes` (
   `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`idSms`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 2
+AUTO_INCREMENT = 3
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -417,6 +439,57 @@ ENGINE = InnoDB
 AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = utf8mb3;
 
+USE `thesis` ;
+
+-- -----------------------------------------------------
+-- procedure sp_filter_offers
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `thesis`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_filter_offers`(
+    IN p_idUser INT,
+    IN p_search VARCHAR(255),
+    IN p_location VARCHAR(255),
+    IN p_contractType VARCHAR(255),
+    IN p_salaryMin INT,
+    IN p_salaryMax INT,
+    IN p_skills VARCHAR(255),
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    -- 1. Main paginated result set
+    SELECT 
+        o.*,
+        c.name AS companyName, 
+        c.location AS companyLocation,
+        (ufo.idUser IS NOT NULL) AS isFavorite
+    FROM offers o
+    INNER JOIN company c ON o.idCompany = c.idCompany
+    LEFT JOIN user_fav_offers ufo ON ufo.idOffer = o.idOffer AND ufo.idUser = p_idUser
+    WHERE (p_search IS NULL OR p_search = '' OR o.title LIKE CONCAT('%', p_search, '%') OR o.description LIKE CONCAT('%', p_search, '%') OR c.name LIKE CONCAT('%', p_search, '%') OR o.location LIKE CONCAT('%', p_search, '%'))
+      AND (p_location IS NULL OR p_location = '' OR o.location LIKE CONCAT('%', p_location, '%') OR c.location LIKE CONCAT('%', p_location, '%'))
+      AND (p_contractType IS NULL OR p_contractType = '' OR FIND_IN_SET(o.contractType, p_contractType) > 0)
+      AND (p_salaryMin IS NULL OR o.salaryMax >= p_salaryMin OR (o.salaryMax IS NULL AND o.salaryMin >= p_salaryMin))
+      AND (p_salaryMax IS NULL OR o.salaryMin <= p_salaryMax)
+      AND (p_skills IS NULL OR p_skills = '' OR o.title LIKE CONCAT('%', p_skills, '%') OR o.description LIKE CONCAT('%', p_skills, '%'))
+    ORDER BY o.createdAt DESC
+    LIMIT p_limit OFFSET p_offset;
+
+    -- 2. Total count for pagination metadata
+    SELECT COUNT(*) AS total
+    FROM offers o
+    INNER JOIN company c ON o.idCompany = c.idCompany
+    WHERE (p_search IS NULL OR p_search = '' OR o.title LIKE CONCAT('%', p_search, '%') OR o.description LIKE CONCAT('%', p_search, '%') OR c.name LIKE CONCAT('%', p_search, '%') OR o.location LIKE CONCAT('%', p_search, '%'))
+      AND (p_location IS NULL OR p_location = '' OR o.location LIKE CONCAT('%', p_location, '%') OR c.location LIKE CONCAT('%', p_location, '%'))
+      AND (p_contractType IS NULL OR p_contractType = '' OR FIND_IN_SET(o.contractType, p_contractType) > 0)
+      AND (p_salaryMin IS NULL OR o.salaryMax >= p_salaryMin OR (o.salaryMax IS NULL AND o.salaryMin >= p_salaryMin))
+      AND (p_salaryMax IS NULL OR o.salaryMin <= p_salaryMax)
+      AND (p_skills IS NULL OR p_skills = '' OR o.title LIKE CONCAT('%', p_skills, '%') OR o.description LIKE CONCAT('%', p_skills, '%'));
+END$$
+
+DELIMITER ;
 USE `thesis`;
 
 DELIMITER $$
@@ -759,48 +832,6 @@ VALUES(
 );
 END$$
 
-USE `thesis`$$
-CREATE PROCEDURE `thesis`.`sp_filter_offers`(
-    IN p_idUser INT,
-    IN p_search VARCHAR(255),
-    IN p_location VARCHAR(255),
-    IN p_contractType VARCHAR(255),
-    IN p_salaryMin INT,
-    IN p_salaryMax INT,
-    IN p_skills VARCHAR(255),
-    IN p_limit INT,
-    IN p_offset INT
-)
-BEGIN
-    -- 1. Main paginated result set
-    SELECT 
-        o.*,
-        c.name AS companyName, 
-        c.location AS companyLocation,
-        (ufo.idUser IS NOT NULL) AS isFavorite
-    FROM offers o
-    INNER JOIN company c ON o.idCompany = c.idCompany
-    LEFT JOIN user_fav_offers ufo ON ufo.idOffer = o.idOffer AND ufo.idUser = p_idUser
-    WHERE (p_search IS NULL OR p_search = '' OR o.title LIKE CONCAT('%', p_search, '%') OR o.description LIKE CONCAT('%', p_search, '%') OR c.name LIKE CONCAT('%', p_search, '%') OR o.location LIKE CONCAT('%', p_search, '%'))
-      AND (p_location IS NULL OR p_location = '' OR o.location LIKE CONCAT('%', p_location, '%') OR c.location LIKE CONCAT('%', p_location, '%'))
-      AND (p_contractType IS NULL OR p_contractType = '' OR FIND_IN_SET(o.contractType, p_contractType) > 0)
-      AND (p_salaryMin IS NULL OR o.salaryMax >= p_salaryMin OR (o.salaryMax IS NULL AND o.salaryMin >= p_salaryMin))
-      AND (p_salaryMax IS NULL OR o.salaryMin <= p_salaryMax)
-      AND (p_skills IS NULL OR p_skills = '' OR o.title LIKE CONCAT('%', p_skills, '%') OR o.description LIKE CONCAT('%', p_skills, '%'))
-    ORDER BY o.createdAt DESC
-    LIMIT p_limit OFFSET p_offset;
-
-    -- 2. Total count for pagination metadata
-    SELECT COUNT(*) AS total
-    FROM offers o
-    INNER JOIN company c ON o.idCompany = c.idCompany
-    WHERE (p_search IS NULL OR p_search = '' OR o.title LIKE CONCAT('%', p_search, '%') OR o.description LIKE CONCAT('%', p_search, '%') OR c.name LIKE CONCAT('%', p_search, '%') OR o.location LIKE CONCAT('%', p_search, '%'))
-      AND (p_location IS NULL OR p_location = '' OR o.location LIKE CONCAT('%', p_location, '%') OR c.location LIKE CONCAT('%', p_location, '%'))
-      AND (p_contractType IS NULL OR p_contractType = '' OR FIND_IN_SET(o.contractType, p_contractType) > 0)
-      AND (p_salaryMin IS NULL OR o.salaryMax >= p_salaryMin OR (o.salaryMax IS NULL AND o.salaryMin >= p_salaryMin))
-      AND (p_salaryMax IS NULL OR o.salaryMin <= p_salaryMax)
-      AND (p_skills IS NULL OR p_skills = '' OR o.title LIKE CONCAT('%', p_skills, '%') OR o.description LIKE CONCAT('%', p_skills, '%'));
-END$$
 
 DELIMITER ;
 
