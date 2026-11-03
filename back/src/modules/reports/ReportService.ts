@@ -7,7 +7,6 @@ import OfferModel from "../offers/models/OfferModel.js";
 import { ReporterType } from "./types/ReporterType.js";
 import { TargetType } from "./types/TargetType.js";
 import HttpError from "../../shared/HttpError.js";
-import ModelsReport from "./types/ModelsReport.js";
 
 export default class ReportService{
     constructor(
@@ -19,17 +18,9 @@ export default class ReportService{
     ){}
 
     public async createReport(data: CreateReportDTO){
-        const models: ModelsReport = {
-            reportModel: this.reportModel,
-            userModel: this.userModel,
-            companyModel: this.companyModel,
-            offerModel: this.offerModel,
-            commentModel: this.commentModel
-        }
+        const checkReporter = await this.validateReporter(data.reporterType, data.reporterId)
 
-        const checkReporter = await this.validateReporter(data.reporterType, data.reporterId, models)
-
-        const checkTarget = await this.validateTarget(data.targetType, data.targetId, models)
+        const checkTarget = await this.validateTarget(data.targetType, data.targetId)
 
         if(!checkReporter){
             throw new HttpError("The reporter was not found on the database", 401)
@@ -39,7 +30,7 @@ export default class ReportService{
             throw new HttpError("The target was not found on the database", 401)
         }
 
-        const result = await models.reportModel.createReport(data)
+        const result = await this.reportModel.createReport(data)
 
         if(result.affectedRows === 0){
             throw new HttpError("The report could not be created", 500)
@@ -66,34 +57,32 @@ export default class ReportService{
 
     private async validateTarget(
         targetType: TargetType,
-        targetId: number,
-        models: ModelsReport
+        targetId: number
     ){
         switch (targetType) {
             case TargetType.USER:
-                return !!(await models.userModel.findById(targetId))
+                return !!(await this.userModel.findById(targetId))
             
             case TargetType.COMPANY:
-                return !!(await models.companyModel.getById(targetId))
+                return !!(await this.companyModel.getById(targetId))
             
             case TargetType.OFFER:
-                return !!(await models.offerModel.getById(targetId))
+                return !!(await this.offerModel.getById(targetId))
             case TargetType.COMMENT:
-                return !!(await models.commentModel.getById(targetId))
+                return !!(await this.commentModel.getById(targetId))
         }
     }
 
     private async validateReporter(
         reporterType: ReporterType,
-        reporterId: number,
-        models: ModelsReport
+        reporterId: number
     ){
         switch (reporterType) {
             case ReporterType.USER:
-                return !!(await models.userModel.findById(reporterId))
+                return !!(await this.userModel.findById(reporterId))
             
             case ReporterType.COMPANY:
-                return !!(await models.companyModel.getById(reporterId))
+                return !!(await this.companyModel.getById(reporterId))
             
         }
     }
