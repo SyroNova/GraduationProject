@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Badge, Button, Col, Row, Spinner } from "react-bootstrap";
+import { Alert, Badge, Button, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
 import axios from "../../api/axios";
 import { Link, useParams } from "react-router-dom";
 import type Offer from "../../types/Offer";
@@ -23,6 +23,10 @@ export default function DashboardOffer(){
     const [offer, setOffer] = useState<Offer | null>(null)
     const [documents, setDocuments] = useState<MetadataResponse[]>([])
     const [isBookmarked, setIsBookmarked] = useState(offer?.isFavorite ?? false)
+    const [showReportModal, setShowReportModal] = useState(false)
+    const [reasonReport, setReasonReport] = useState("")
+    const [successReport, setSuccessReport] = useState(false)
+    const [errorReport, setErrorReport] = useState(false)
 
     const fetchOffer = async (idOffer: string) => {
         const response = await axios.get(`/offers/get/${idOffer}`)
@@ -93,6 +97,40 @@ export default function DashboardOffer(){
             }
         } catch (error) {
             console.log("Error al actualizar favoritos", error)
+        }
+    }
+
+    const handleReport = async (e: React.SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault()
+
+        const targetType = "OFFER"
+        const targetId = offer.idOffer
+        const reason = reasonReport
+
+        try {
+            await axios.post('/reports/create', {
+                targetType,
+                targetId,
+                reason
+            })
+
+            setSuccessReport(true)
+
+            setTimeout(() => {
+                setSuccessReport(false)
+            }, 4000)
+
+        } catch (error) {
+            if(isAxiosError(error)){
+                console.log(error.response?.data)
+            }
+            setErrorReport(true)
+            
+            setTimeout(() => {
+                setErrorReport(false)
+            }, 4000)
+        } finally{
+            setShowReportModal(false)
         }
     }
 
@@ -170,14 +208,60 @@ export default function DashboardOffer(){
                                 </Button>
                             </Col>
                             <Col sm="auto">
-                                <Button className="fw-semibold" variant="danger"><IoFlagOutline size={20} className="me-3"/>Reportar oferta</Button>
+                                <Button className="fw-semibold" variant="danger" onClick={() => setShowReportModal(true)}>
+                                    <IoFlagOutline size={20} className="me-3"/>Reportar oferta
+                                </Button>
                             </Col>
                         </Row>
+                        {successReport && (
+                            <Alert variant="success" className="mt-2 mb-0" style={{width: "90%"}}>
+                                Se ha reportado exitosamente la oferta
+                            </Alert>
+                        )}
+                        {errorReport && (
+                            <Alert variant="danger" className="mt-2 mb-0" style={{width: "90%"}}>
+                                Error al reportar la oferta, porfavor intente nuevamente
+                            </Alert>
+                        )}
                     </div>
                     <hr />
                     <CommentSection idOffer={id!}/>
                 </>
             }
+            <Modal
+                show={showReportModal}
+                onHide={() => setShowReportModal(false)}
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <Form.Label htmlFor="reportReason">
+                            Motivo del reporte
+                        </Form.Label>
+                    </Modal.Title>
+                </Modal.Header>
+                <Form onSubmit={handleReport}>
+                    <Modal.Body>
+                            <Form.Control
+                                id="reportReason"
+                                as="textarea"
+                                rows={4}
+                                style={{ resize: 'none' }}
+                                name="reason"
+                                value={reasonReport}
+                                onChange={(e) => {
+                                    setReasonReport(e.target.value)
+                                }}
+                                placeholder="Describe el motivo del reporte"
+                                required
+                            />
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowReportModal(false)}>Cancelar</Button>
+                        <Button type="submit" variant="danger">Reportar</Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
         </>
     )
 }
