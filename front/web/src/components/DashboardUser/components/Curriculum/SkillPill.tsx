@@ -20,7 +20,7 @@ export default function SkillPill({ data, isEditing, onEdit, onDelete }: Readonl
             md={6}
         >
             <div className="justify-content-center p-1" style={{border: '1px solid black', borderRadius: '5px', width: "50%"}}>
-                <Row>
+                <Row className="justify-content-center align-items-center">
                     <Col
                         className="text-truncate"
                         title={data.name}
