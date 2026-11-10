@@ -5,6 +5,7 @@ import HttpError from "../../shared/HttpError.js";
 import AuditConnection from "../../shared/AuditConnection.js";
 import { AuthRequest } from "../../middlewares/AuthMiddleware.js";
 import AuditContextConstructor from "../../shared/AuditContextConstructor.js";
+import SetImageDTO from "./dto/SetImageDTO.js";
 
 export default class UserController {
 
@@ -200,6 +201,66 @@ export default class UserController {
 
             res.status(200).json(response)
         } catch (error: any) {
+            next(error)
+        }
+    }
+
+    public async resetPassword(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> {
+        const conn = await AuditConnection.get(req)
+        try {
+            const { document, newPassword } = req.body;
+
+            const response = await this.userService.resetPassword(document, newPassword, conn);
+
+            res.status(200).json({ message: response })
+        } catch (error) {
+            next(error);
+        } finally{
+            conn.release()
+        }
+    }
+
+    public async setImage(
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction
+    ){
+        try {
+            const idUser = req.user?.id ?? 5 //TODO:RECORDAR QUITAR
+            const file = req.file as Express.Multer.File
+
+            const data: SetImageDTO = {
+                idUser,
+                image: {
+                    imageData: file.buffer,
+                    mimeType: file.mimetype
+                }
+            }
+
+            const response = await this.userService.setImage(data)
+
+            res.status(200).json(response)
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    public async getImage(
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction
+    ){
+        try {
+            const idUser = req.user?.id ?? 5 //TODO:RECORDAR QUITAR
+
+            const response = await this.userService.getImage(idUser)
+
+            res.status(200).json(response)
+        } catch (error) {
             next(error)
         }
     }
