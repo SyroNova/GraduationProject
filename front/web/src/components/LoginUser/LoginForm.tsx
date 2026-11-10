@@ -66,7 +66,7 @@ export default function LoginForm({onLost}: Readonly<Props>){
                             <Form.Control 
                                 type="text" 
                                 placeholder="CC"
-                                name="cc"
+                                name="document"
                                 value={values.document}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
