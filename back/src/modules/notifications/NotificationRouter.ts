@@ -18,5 +18,20 @@ export default class NotificationRouter implements InterfaceRouter{
             '/create',
             this.notiController.createNotification.bind(this.notiController)
         )
+
+        this.router.patch(
+            '/read/:id',
+            this.notiController.setReadNotification.bind(this.notiController)
+        )
+
+        this.router.get(
+            '/get-all',
+            this.notiController.getAllNotifications.bind(this.notiController)
+        )
+
+        this.router.get(
+            '/get-count',
+            this.notiController.getNotificationCount.bind(this.notiController)
+        )
     }
 }
