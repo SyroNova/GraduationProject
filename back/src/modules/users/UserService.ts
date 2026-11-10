@@ -17,6 +17,8 @@ import { OfferDB } from "../offers/types/OfferDB.js";
 import { OfferDTO } from "../offers/dto/OfferDTO.js";
 import ResponseGetDTO from "../offers/dto/ResponseGetDTO.js";
 import SessionModel from "../auth/model/SessionModel.js";
+import SetImageDTO from "./dto/SetImageDTO.js";
+import UserProfileImage from "./models/UserProfileImage.js";
 
 export default class UserService{
 
@@ -24,7 +26,8 @@ export default class UserService{
         private readonly userModel: UserModel,
         private readonly favoriteModel: UserOfferFav,
         private readonly transactionManager: TransactionManager,
-        private readonly tokenService: TokenService
+        private readonly tokenService: TokenService,
+        private readonly userProfile: UserProfileImage
     ) {}
 
     public async register(userData: RegisterUserDTO, auditContext: AuditContext) {
@@ -115,8 +118,29 @@ export default class UserService{
         if(!isMatch){
             throw new Error("Invalid password")
         }
+
+        const hashedPassword = await this.hashPassword(changePasswordDTO.newPassword);
     
-        const result = await userModel.updatePassword(user.document.toString(), changePasswordDTO.newPassword);
+        const result = await userModel.updatePassword(user.document.toString(), hashedPassword);
+    
+        if(!result){
+            throw new Error("Server error")
+        }
+    
+        return result;
+    }
+
+    public async resetPassword(document: string, newPassword: string, conn: PoolConnection){
+        const { userModel } = this.getAuditModel(conn)
+        const user = await this.userModel.findByDocument(document);
+    
+        if(!user){
+            throw new Error("User not found");
+        }
+
+        const hashedPassword = await this.hashPassword(newPassword);
+
+        const result = await userModel.updatePassword(user.document.toString(), hashedPassword);
     
         if(!result){
             throw new Error("Server error")
@@ -209,6 +233,30 @@ export default class UserService{
         return responseDTO
     }
 
+    public async setImage(data: SetImageDTO){
+        const result = await this.userProfile.setImage(data)
+
+        if(result.affectedRows === 0){
+            throw new HttpError("Error creating image", 500)
+        }
+
+        return {
+            message: "Profile image succesfully saved",
+            result: result.insertId
+        }
+    }
+
+    public async getImage(idUser: number){
+        const result = await this.userProfile.getImage(idUser)
+        if(!result){
+            throw new HttpError("Image not found", 404)
+        }
+        return {
+            message: "Profile icon found",
+            result
+        }
+    }
+
     private async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
         const validPassword = await bcrypt.compare(password, hashedPassword);
         return validPassword;
@@ -242,4 +290,5 @@ export default class UserService{
             tokenService: new TokenService(sessionModel)
         }
     }
+
 }
