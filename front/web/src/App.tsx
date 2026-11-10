@@ -12,6 +12,7 @@ import DashboardCurriculumView from "./components/DashboardUser/DashboardCurricu
 import DashboardNotifications from "./components/DashboardUser/DashboardNotifications"
 import DashboardHelp from "./components/DashboardUser/DashboardHelp"
 import DashboardOffer from "./components/DashboardUser/DashboardOffer"
+import DashboardMe from "./components/DashboardUser/DashboardMe"
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <Route path="/register/user" element={<RegisterPage />} /> 
       <Route path="/curriculum" element={<CurriculumPage />} />
       <Route path="/dashboard" element={<Dashboard />}>
+        <Route path='me' element={<DashboardMe />}/>
         <Route path="home" element={<DashboardHome />}/>
         <Route path="offer/:id" element={<DashboardOffer />}/>
         <Route path="curriculum" element={<DashboardCurriculumView />}/>
