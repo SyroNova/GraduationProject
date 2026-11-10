@@ -53,7 +53,11 @@ export const AuthProvider = ({ children }: {children: React.ReactNode}) => {
                     originalRequest._retry = true;
 
                     try {
-                        const response = await axios.post("/auth/refresh");
+                        const response = await axios.post(
+                            "/auth/refresh",
+                            {},
+                            { withCredentials: true }
+                        );
 
                         const newToken = response.data.accessToken;
 
