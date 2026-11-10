@@ -2,17 +2,39 @@ import { NextFunction, Request, Response } from "express";
 import ReportService from "./ReportService.js";
 import CreateReportDTO from "./dto/CreateReportDTO.js";
 import HttpError from "../../shared/HttpError.js";
+import { AuthRequest } from "../../middlewares/AuthMiddleware.js";
+import { ReporterType } from "./types/ReporterType.js";
 
 export default class ReportController{
     constructor(private readonly reportService: ReportService){}
 
     public createReport(
-        req: Request,
+        req: AuthRequest,
         res: Response,
         next: NextFunction
     ){
         try {
-            const data: CreateReportDTO = req.body
+            //TODO: REMEMBER TO DELETE THE PARAMETERS FOR TESTING
+            const { targetType, targetId, reason } = req.body
+
+            const reporterType = req.user?.role.toUpperCase() ?? ReporterType.USER
+            const reporterId = req.user?.id ?? 5
+
+            if(Number.isNaN(reporterId)){
+                throw new HttpError("Invalid reporter ID", 400);
+            }
+
+            if(reporterType !== ReporterType.USER && reporterType !== ReporterType.COMPANY){
+                throw new HttpError("Invalid reporter type", 400);
+            }
+
+            const data: CreateReportDTO = {
+                reporterType,
+                reporterId,
+                targetType,
+                targetId,
+                reason
+            }
 
             const response = this.reportService.createReport(data)
 
