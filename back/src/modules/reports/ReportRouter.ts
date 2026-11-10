@@ -22,7 +22,7 @@ export default class ReportRouter implements InterfaceRouter{
 
         this.router.post(
             '/create',
-            validateRequestBody(['reporterType', 'reporterId', 'targetType', 'targetId', 'reason']),
+            validateRequestBody(['targetType', 'targetId', 'reason']),
             this.reportController.createReport.bind(this.reportController)
         )
     }
