@@ -1,3 +1,4 @@
+import HttpError from "../../shared/HttpError.js";
 import CommentModel from "../comments/model/CommentModel.js";
 import CompanyModel from "../companies/model/CompanyModel.js";
 import OfferModel from "../offers/models/OfferModel.js";
@@ -17,10 +18,61 @@ export default class NotificationService{
     ){}
 
     public async createNotification(data: CreateNotificationDTO){
+        const checkReference = await this.validateReference(data.referenceType, data.referenceId)
+        
+        const checkRecipient = await this.validateRecipient(data.recipientType, data.recipientId)
 
+        if(!checkReference){
+            throw new HttpError("The reference was not found on the database", 401)
+        }
+
+        if(!checkRecipient){
+            throw new HttpError("The recipient was not found on the database", 401)
+        }
+
+        const result = await this.notiModel.createNotification(data)
+
+        if(result.affectedRows === 0){
+            throw new HttpError("The notification could not be created", 500)
+        }
+
+        return {
+            message: "Notification created successfully",
+            notificationId: result.insertId
+        }
     }
 
-    private async validateTarget(
+    public async setReadNotification(idNoti: number, recipientId: number, recipientType: string){
+        const result = await this.notiModel.setReadNotification(idNoti, recipientId, recipientType)
+
+        if(result.affectedRows === 0){
+            throw new HttpError("The notification could not be marked as read", 500)
+        }
+
+        return {
+            message: "Notification marked as read successfully"
+        }
+    }
+
+    public async getAllNotifications(recipientId: number){
+        const result = await this.notiModel.getAll(recipientId)
+
+        return {
+            message: "Succesfully got notifications",
+            result: result
+        }
+    }
+
+    public async getNotificationCount(recipientId: number){
+        const result = await this.notiModel.getNotificationCount(recipientId)
+        
+        return {
+            message: "Succesfully got notification count",
+            result: result
+        }
+    }
+
+    private async validateReference(
         referenceType: ReferenceType,
         referenceId: number
     ){
@@ -38,7 +90,7 @@ export default class NotificationService{
         }
     }
 
-    private async validateReporter(
+    private async validateRecipient(
         recipientType: RecipientType,
         recipientId: number
     ){
