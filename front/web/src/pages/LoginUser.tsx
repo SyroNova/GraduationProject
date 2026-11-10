@@ -5,6 +5,7 @@ import ResetPassword from "../components/LoginUser/ResetPassword";
 
 export default function LoginUser(){
     const [step, setStep] = useState("login");
+    const [document, setDocument] = useState("")
 
     return (
         <div className="d-flex justify-content-center align-items-center vh-100">
@@ -12,10 +13,10 @@ export default function LoginUser(){
             <LoginForm onLost={() => setStep("lost")}/>
         )}
         {step === "lost" && (
-            <VerifyPasswordLost onVerify={() => setStep("reset")}/>
+            <VerifyPasswordLost onVerify={() => setStep("reset")} setDocument={setDocument} />
         )}
         {step === "reset" && (
-            <ResetPassword />
+            <ResetPassword document={document} onChanged={() => setStep("login")} />
         )}
         </div>
     )
