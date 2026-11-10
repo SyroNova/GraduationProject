@@ -7,15 +7,18 @@ import App from './App.tsx'
 import { AuthProvider } from './context/AuthProvider.tsx';
 import { SmsProvider } from './context/SmsProvider.tsx';
 import { ResumeProvider } from "./context/ResumeProvider.tsx"
+import { ProfileImageProvider } from './context/ProfileImageProvider.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
       <SmsProvider>
         <ResumeProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <ProfileImageProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ProfileImageProvider>
         </ResumeProvider>
       </SmsProvider>
     </AuthProvider>
