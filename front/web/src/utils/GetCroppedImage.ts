@@ -1,0 +1,48 @@
+import type { Area } from "react-easy-crop";
+
+export const getCroppedImage = (
+    imageSrc: string,
+    pixelCrop: Area
+): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+        const image = new Image()
+
+        image.src = imageSrc
+
+        image.onload = () => {
+            const canvas = document.createElement("canvas")
+
+            canvas.width = pixelCrop.width
+            canvas.height = pixelCrop.height
+
+            const ctx = canvas.getContext("2d")
+
+            if(!ctx){
+                reject(new Error("No se pudo crear el canvas"))
+                return;
+            }
+
+            ctx.drawImage(
+                image,
+                pixelCrop.x,
+                pixelCrop.y,
+                pixelCrop.width,
+                pixelCrop.height,
+                0,
+                0,
+                pixelCrop.width,
+                pixelCrop.height
+            )
+
+            canvas.toBlob((blob) => {
+                if(blob){
+                    resolve(blob)
+                } else {
+                    reject(new Error("Error al recortar la imagen"))
+                }
+            }, "image/jpeg")
+        };
+
+        image.onerror = reject;
+    })
+}
