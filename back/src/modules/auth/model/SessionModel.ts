@@ -32,7 +32,7 @@ export default class SessionModel{
             SELECT *
             FROM session
             WHERE refreshToken = ?
-            AND expiresAt > NOW()
+            AND expiresAt > UTC_TIMESTAMP()
         `
         const [result] = await this.db.execute<Session[]>(query, [refresh.refreshToken]);
 

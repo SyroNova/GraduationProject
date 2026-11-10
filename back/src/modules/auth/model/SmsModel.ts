@@ -8,7 +8,12 @@ export default class SmsModel{
 
         const query = `
             INSERT INTO sms_codes (phone, code, expiresAt)
-            VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))
+            VALUES (?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 5 MINUTE)) 
+            ON DUPLICATE KEY UPDATE 
+            code = VALUES(code), 
+            expiresAt = VALUES(expiresAt),
+            attempts = 0,
+            createdAt = UTC_TIMESTAMP()
         `
 
         const values = [phone, code]
