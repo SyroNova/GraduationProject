@@ -1,7 +1,8 @@
 import { Router } from "express";
 import InterfaceRouter from "../../shared/InterfaceRouter.js";
 import UserController from "./UserController.js";
-import { validateRequestBody, validateRequestParams, validateUpdateRequest } from "../../middlewares/ValidateMiddleware.js";
+import { validateFile, validateRequestBody, validateRequestParams, validateUpdateRequest } from "../../middlewares/ValidateMiddleware.js";
+import { upload } from "../../middlewares/MulterMIddleware.js";
 
 export default class UserRouter implements InterfaceRouter{
     public router: Router;
@@ -59,6 +60,24 @@ export default class UserRouter implements InterfaceRouter{
             '/favorite/:idOffer',
             validateRequestParams(['idOffer']),
             this.userController.deleteFavoriteOffer.bind(this.userController)
+        )
+
+        this.router.patch(
+            '/reset-password',
+            validateRequestBody(['document', 'newPassword']),
+            this.userController.resetPassword.bind(this.userController)
+        )
+
+        this.router.put(
+            '/image',
+            upload.single('image'),
+            validateFile(),
+            this.userController.setImage.bind(this.userController)
+        )
+
+        this.router.get(
+            '/get/image',
+            this.userController.getImage.bind(this.userController)
         )
     }
 }
