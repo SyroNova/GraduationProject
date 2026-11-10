@@ -7,8 +7,8 @@ import axios from "../../api/axios";
 import { isAxiosError } from "axios";
 import UseSms from "../../hooks/UseSms";
 
-const CODE_SEND_URL = "/auth/send-code/registration";
-const CODE_VERIFY_URL = "/auth/verify-code/registration";
+const CODE_SEND_URL = "/auth/send-code";
+const CODE_VERIFY_URL = "/auth/verify-code";
 
 
 type Props = {
@@ -123,8 +123,8 @@ export default function VerifyRegisterSMS({onBack}: Readonly<Props>){
                         </Form.Group>
                         <Button type="submit" className="btn btn-primary w-100" disabled={!!error}>Validar y continuar</Button>
                     </Form>
-                <div className="d-flex align-items-center justify-content-center gap-2">
-                    <button type="button" className="btn btn-link p-0" onClick={onBack}><IoMdArrowBack color="black" /></button>
+                <div className="d-flex align-items-center justify-content-center gap-2" onClick={onBack}>
+                    <button type="button" className="btn btn-link p-0"><IoMdArrowBack color="black" /></button>
                     <p className="mb-0">Retroceder</p>
                 </div>
             </Card.Body>
