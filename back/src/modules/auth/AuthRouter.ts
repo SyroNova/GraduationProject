@@ -26,15 +26,15 @@ export default class AuthRouter implements InterfaceRouter{
         );
 
         this.router.post(
-            '/send-code/registration',
-            validateRequestBody(['phone']),
-            this.authController.sendCodeRegistration.bind(this.authController)
+            '/send-code',
+            validateRequestBody(['document']),
+            this.authController.sendCode.bind(this.authController)
         );
 
         this.router.post(
-            '/verify-code/registration',
-            validateRequestBody(['phone', 'code']),
-            this.authController.verifyCodeRegistration.bind(this.authController)
+            '/verify-code',
+            validateRequestBody(['document', 'code']),
+            this.authController.verifyCode.bind(this.authController)
         )
 
         this.router.patch(

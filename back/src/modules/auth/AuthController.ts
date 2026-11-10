@@ -37,15 +37,15 @@ export default class AuthController{
 
     }
 
-    public async sendCodeRegistration(
+    public async sendCode(
         req: Request,
         res: Response,
         next: NextFunction
     ){
         try {
-            const { phone } = req.body
+            const { document } = req.body
 
-            const code = await this.authService.sendCode(phone);
+            const code = await this.authService.sendCode(document);
 
             res.status(200).json({ code: code })
         } catch (error) {
@@ -54,15 +54,15 @@ export default class AuthController{
         
     }
 
-    public async verifyCodeRegistration(
+    public async verifyCode(
         req: Request,
         res: Response,
         next: NextFunction
     ){
         try {
-            const { phone, code } = req.body
+            const { document, code } = req.body
 
-            const response = await this.authService.verifyCode(phone, code)
+            const response = await this.authService.verifyCode(document, code)
 
             res.status(200).json({ message: response })
         } catch (error) {

@@ -62,10 +62,17 @@ export default class AuthService{
         return { accessToken };
     }
 
-    public async sendCode(phone: string): Promise<string> {
+    public async sendCode(document: string): Promise<string> {
         const code = this.generateCode();
 
-        const result = await this.smsModel.sendCode(phone, code);
+        const user = await this.userModel.findByDocument(document);
+
+        if(!user){
+            throw new Error("User not found");
+        }
+
+
+        const result = await this.smsModel.sendCode(user.phone, code);
 
         if(result.affectedRows === 0){
             throw new Error("Error creating the sms code")
@@ -74,8 +81,14 @@ export default class AuthService{
         return code;
     }
 
-    public async verifyCode(phone: string, code: string){
-        const result = await this.smsModel.getSms(phone, code);
+    public async verifyCode(document: string, code: string){
+        const user = await this.userModel.findByDocument(document);
+
+        if(!user){
+            throw new Error("User not found");
+        }
+
+        const result = await this.smsModel.getSms(user.phone, code);
 
         if(!result){
             throw new Error("Invalid phone");
