@@ -93,3 +93,11 @@ export const validateFiles = () => (req: Request, res: Response, next: NextFunct
     }
     next()
 }
+
+export const validateFile = () => (req: Request, res: Response, next: NextFunction) => {
+    const file = req.file as Express.Multer.File
+    if(!file){
+        return res.status(400).json({ error: "A image is required" })
+    }
+    next()
+}
