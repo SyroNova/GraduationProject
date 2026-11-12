@@ -50,11 +50,11 @@ UrNextJob uses MySQL as its relational database management system.
 
 The database includes entities for users, companies, job offers, resumes, skills, notifications, comments, and reports, among others.
 
-## ⚙️nstallation and Setup
+## Installation and Setup
 
 Setup instructions and environment variables will be documented here.
 
-## 👨‍💻evelopment
+## Development
 
 This project was developed as part of an academic degree project, applying software engineering principles and full-stack web development technologies.
 
