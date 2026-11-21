@@ -17,7 +17,7 @@ export default class SessionModel{
             INSERT INTO session (idUser, refreshToken, createdAt, expiresAt, role)
             VALUES (?, ?, ?, ?, ?)
         `;
-        const values = [session.idUser, session.refreshToken, session.createdAt, session.expiresAt, session.role];
+        const values = [session.id, session.refreshToken, session.createdAt, session.expiresAt, session.role];
         const [result] = await this.db.execute<ResultSetHeader>(query, values);
 
         console.log(result.affectedRows)

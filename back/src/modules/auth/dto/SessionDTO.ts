@@ -1,5 +1,5 @@
 export interface SessionDTO{
-    idUser: number;
+    id: number;
     refreshToken: string;
     createdAt: Date;
     expiresAt: Date;

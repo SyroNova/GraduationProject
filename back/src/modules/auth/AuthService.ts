@@ -2,12 +2,15 @@ import UserModel from "../users/models/UserModel.js";
 import TokenService from "../../shared/TokenService.js";
 import { LoginUserDTO } from "./dto/LoginUserDTO.js";
 import bcrypt from "bcrypt";
-import { LoginResponseDTO } from "./dto/LoginResponseDTO.js";
+import { LoginUserResponseDTO } from "./dto/LoginUserResponseDTO.js";
 import SessionModel from "./model/SessionModel.js";
 import { RefreshDTO } from "./dto/RefreshDTO.js";
 import { Session } from "./types/Session.js";
 import SmsModel from "./model/SmsModel.js";
 import { ChangePasswordDTO } from "./dto/ChangePasswordDTO.js";
+import LoginCompanyDTO from "./dto/LoginCompanyDTO.js";
+import { LoginCompanyResponseDTO } from "./dto/LoginCompanyResponseDTO.js";
+import CompanyModel from "../companies/model/CompanyModel.js";
 
 export default class AuthService{
 
@@ -15,17 +18,18 @@ export default class AuthService{
         private readonly tokenService: TokenService,
         private readonly userModel: UserModel,
         private readonly sessionModel: SessionModel,
-        private readonly smsModel: SmsModel
+        private readonly smsModel: SmsModel,
+        private readonly companyModel: CompanyModel
     ) {}
 
-    public async login(loginDTO: LoginUserDTO){
+    public async loginUser(loginDTO: LoginUserDTO){
         const userDB = await this.userModel.findByDocument(loginDTO.document);
 
         if(!userDB){
             throw new Error('User not found');
         }
 
-        const user: LoginResponseDTO = {
+        const user: LoginUserResponseDTO = {
             idUser: userDB.idUser,
             passwordHash: userDB.passwordHash,
             role: userDB.role as string
@@ -44,9 +48,41 @@ export default class AuthService{
         const expiresAt = new Date()
         expiresAt.setDate(expiresAt.getDate() + 7);
 
-        await this.tokenService.saveRefreshToken({ idUser: user.idUser, refreshToken: refreshToken, createdAt: new Date(), expiresAt: expiresAt, role: user.role })
+        await this.tokenService.saveRefreshToken({ id: user.idUser, refreshToken: refreshToken, createdAt: new Date(), expiresAt: expiresAt, role: user.role })
 
         return { accessToken, refreshToken, role: user.role, idUser: user.idUser };
+
+    }
+    
+    public async loginCompany(loginDTO: LoginCompanyDTO){
+        const companyDB = await this.companyModel.getByNit(loginDTO.NIT);
+
+        if(!companyDB){
+            throw new Error('Company not found');
+        }
+
+        const company: LoginCompanyResponseDTO = {
+            idCompany: companyDB.idCompany,
+            passwordHash: companyDB.passwordHash,
+            role: companyDB.role as string
+        }
+
+        const isMatch = await this.verifyPassword(loginDTO.password, company.passwordHash);
+
+        if(!isMatch){
+            throw new Error('Invalid credentials');
+        }
+
+        const accessToken = this.tokenService.generateAccessToken({ id: company.idCompany, role: company.role });
+
+        const refreshToken = this.tokenService.generateRefreshToken();
+
+        const expiresAt = new Date()
+        expiresAt.setDate(expiresAt.getDate() + 7);
+
+        await this.tokenService.saveRefreshToken({ id: company.idCompany, refreshToken: refreshToken, createdAt: new Date(), expiresAt: expiresAt, role: company.role })
+
+        return { accessToken, refreshToken, role: company.role, idCompany: company.idCompany };
 
     }
 
