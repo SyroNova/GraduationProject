@@ -1,5 +1,6 @@
 import AuthFactory from "./modules/auth/factory/AuthFactory.js";
 import CommentFactory from "./modules/comments/factory/CommentFactory.js";
+import CompanyFactory from "./modules/companies/Factory/CompanyFactory.js";
 import DocumentFactory from "./modules/document/factory/DocumentFactory.js";
 import EscoFactory from "./modules/esco/factory/EscoFactory.js";
 import NotificationFactory from "./modules/notifications/Factory/NotificationFactory.js";
@@ -27,6 +28,19 @@ const reportRouter = ReportFactory.create()
 
 const notificationRouter = NotificationFactory.create()
 
-const server = new Server(8080, [userRouter, authRouter, offerRouter, resumeRouter, escoRouter, documentRouter, commentRouter, reportRouter, notificationRouter])
+const companyRouter = CompanyFactory.create()
+
+const server = new Server(8080, [
+    userRouter, 
+    authRouter, 
+    offerRouter,
+    resumeRouter, 
+    escoRouter, 
+    documentRouter, 
+    commentRouter, 
+    reportRouter, 
+    notificationRouter, 
+    companyRouter
+])
 
 server.listen()
