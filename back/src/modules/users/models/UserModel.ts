@@ -1,8 +1,8 @@
 import { RegisterUserDTO } from "../dto/RegisterUserDTO.js";
 import pool from "../../../config/Database.js";
-import UserDB from "../types/UserDB.js";
+import UserDB, { UserWithResumeDB } from "../types/UserDB.js";
 import { ResultSetHeader } from "mysql2";
-import RoleDB from "../types/RoleDB.js";
+import RoleDB from "../../../shared/RoleDB.js";
 import { Pool, PoolConnection } from "mysql2/promise";
 
 export default class UserModel{
@@ -36,7 +36,7 @@ export default class UserModel{
                 u.birthDate,
                 u.actualCity,
                 u.gender,
-                r.name role
+                r.name role,
             FROM user u
             INNER JOIN role r on r.idRole = u.idRole
             WHERE u.idUser = ?
@@ -78,7 +78,6 @@ export default class UserModel{
     }
 
     public async getRole(role: number){
-
         const query = `
             SELECT name 
             FROM role
@@ -100,5 +99,30 @@ export default class UserModel{
         const [result] = await this.db.execute<ResultSetHeader>(query, values)
 
         return result;
+    }
+
+    public async getAll(){
+        const query = `
+            SELECT 
+                u.idUser,
+                u.name,
+                u.document,
+                u.documentType,
+                u.passwordHash,
+                u.phone,
+                u.email,
+                u.birthDate,
+                u.actualCity,
+                u.gender,
+                r.name role,
+                re.idResume
+            FROM user u
+            INNER JOIN role r on r.idRole = u.idRole
+            INNER JOIN resume re on re.idUser = u.idUser
+        `
+
+        const [result] = await this.db.execute<UserWithResumeDB[]>(query)
+
+        return result
     }
 }
