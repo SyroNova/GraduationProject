@@ -41,6 +41,8 @@ export default class OfferModel {
     public async get(offset: number, limit: number, idUser: number, filters?: FilterOfferDTO) {
         const { search, location, contractType, salaryMin, salaryMax, skills } = this.getFilters(filters || {});
 
+        console.log(contractType)
+
         const [results] = await this.db.query<[OfferDB[], RowDataPacket[]]>(
             'CALL sp_filter_offers(?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [idUser, search, location, contractType, salaryMin, salaryMax, skills, limit, offset]
@@ -102,7 +104,7 @@ export default class OfferModel {
         const location = filters?.location?.trim() || null;
         const contractType = Array.isArray(filters?.contractType)
             ? filters.contractType.join(',')
-            : null;
+            : filters.contractType;
         const salaryMin = filters?.salaryMin !== undefined && !Number.isNaN(Number(filters.salaryMin)) ? Number(filters.salaryMin) : null;
         const salaryMax = filters?.salaryMax !== undefined && !Number.isNaN(Number(filters.salaryMax)) ? Number(filters.salaryMax) : null;
         const skills = Array.isArray(filters?.skills)
