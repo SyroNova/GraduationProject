@@ -17,8 +17,14 @@ export default class AuthRouter implements InterfaceRouter{
         this.router.post(
             '/login/user',
             validateRequestBody(['document', 'password']),
-            this.authController.login.bind(this.authController)
+            this.authController.loginUser.bind(this.authController)
         );
+
+        this.router.post(
+            '/login/company',
+            validateRequestBody(['NIT', 'password']),
+            this.authController.loginCompany.bind(this.authController)
+        )
 
         this.router.post(
             '/refresh',
