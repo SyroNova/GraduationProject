@@ -23,8 +23,6 @@ export default function OfferCard(props: Readonly<Props>){
 
     const days = getDaysSince(offer.createdAt)
 
-    console.log(days)
-
     const handleBookmarkAdd = async () => {
         try {
             await axios.post(`/users/favorite/${offer.idOffer}`)
