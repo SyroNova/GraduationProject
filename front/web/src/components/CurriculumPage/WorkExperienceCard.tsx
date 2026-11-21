@@ -254,7 +254,7 @@ export default function WorkExperienceCard({onNext, onBack}: Readonly<Props>) {
                                 }
                                 <div className="d-flex justify-content-around mt-3">
                                     <button type="button" className="btn btn-secondary" onClick={handleBack} style={{ border: 0}}>Anterior</button>
-                                    <button type="button" className="btn-link" style={{background: 'none', border: 'none'}} onClick={() => navigator("/dashboard/home")}>Guardar  y salir</button>
+                                    <button type="button" className="btn-link" style={{background: 'none', border: 'none'}} onClick={() => navigator("/dashboard/user/home")}>Guardar  y salir</button>
                                     <Button type="button" className="btn btn-primary" onClick={onNext}>Siguiente</Button>
                                 </div>
                             </Form>

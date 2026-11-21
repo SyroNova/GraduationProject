@@ -92,7 +92,7 @@ export default function SkillsCard({onBack}: Readonly<Props>) {
             setResume(null)
             setStep("start")
 
-            navigator('/dashboard/home')
+            navigator('/dashboard/user/home')
         } catch (error) {
             console.log(error)
             setError("Error saving resume")

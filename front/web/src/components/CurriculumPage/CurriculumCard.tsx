@@ -27,7 +27,7 @@ export default function CurriculumCard({onNext}: Readonly<Props>) {
                             <p className="fw-bold text-start" style={{color: "rgb(102, 121, 150)"}}>Solo te tomará 10-15 minutos. Podrás guardar tu progreso en cualquier momento.</p>
                         </div>
                     </Button>
-                    <Button className="my-buttonCurriculum" onClick={() => navigator("/dashboard/home")} style={{ width: '20rem', height: '15rem'}}>
+                    <Button className="my-buttonCurriculum" onClick={() => navigator("/dashboard/user/home")} style={{ width: '20rem', height: '15rem'}}>
                         <div className="d-flex flex-column">
                             <p className="fs-5 fw-bold text-start" style={{color: "var(--color-text-primary)"}}>Completar más tarde</p>
                             <p className="fw-bold text-start" style={{color: "rgb(102, 121, 150)"}}>Explora la plataforma y completa tu hoja de vida cuado estés listo.</p>
