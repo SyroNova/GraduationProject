@@ -89,6 +89,15 @@ export default class OfferService{
         return responseDTO
     }
 
+    public async getAllCompany(idCompany: number){
+        const response = await this.offerModel.getAllCompany(idCompany)
+
+        return {
+            message: "Offers fetched succesfully",
+            result: response
+        }
+    }
+
     public async getOfferById(id: number, newModel?: OfferModel){
         const db = newModel ?? this.offerModel
         const result = await db.getById(id);
