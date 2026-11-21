@@ -264,4 +264,18 @@ export default class UserController {
             next(error)
         }
     }
+
+    public async getAll(
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction
+    ){
+        try {
+            const response = await this.userService.getAll()
+
+            res.status(200).json(response)
+        } catch (error) {
+            next(error)
+        }
+    }
 }

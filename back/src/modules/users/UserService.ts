@@ -5,7 +5,7 @@ import { ChangePasswordProfileDTO } from "./dto/ChangePasswordProfileDTO.js";
 import UserDB from "./types/UserDB.js";
 import { DocumentType } from "./types/DocumentType.js";
 import HttpError from "../../shared/HttpError.js";
-import RoleDB from "./types/RoleDB.js";
+import RoleDB from "../../shared/RoleDB.js";
 import UpdateUserDTO from "./dto/UpdateUserDTO.js";
 import ResumeModel from "../resume/models/ResumeModel.js";
 import { PoolConnection } from "mysql2/promise";
@@ -73,7 +73,7 @@ export default class UserService{
                 const expiresAt = new Date()
                 expiresAt.setDate(expiresAt.getDate() + 7);
 
-                await tokenService.saveRefreshToken({ idUser: user.idUser, refreshToken: refreshToken, createdAt: new Date(), expiresAt: expiresAt, role: user.role.name })
+                await tokenService.saveRefreshToken({ id: user.idUser, refreshToken: refreshToken, createdAt: new Date(), expiresAt: expiresAt, role: user.role.name })
 
                 return { accessToken, refreshToken, idResume: resume.insertId, idUser: user.idUser, role: user.role.name };
             },
@@ -103,6 +103,15 @@ export default class UserService{
         const {passwordHash, ...safeUser} = response
 
         return safeUser
+    }
+
+    public async getAll(){
+        const response = await this.userModel.getAll()
+
+        return {
+            message: "Succesfully fetched all users",
+            result: response
+        }
     }
 
     public async changePassword(changePasswordDTO: ChangePasswordProfileDTO, conn: PoolConnection){

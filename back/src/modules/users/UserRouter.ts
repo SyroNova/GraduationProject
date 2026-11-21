@@ -79,5 +79,10 @@ export default class UserRouter implements InterfaceRouter{
             '/get/image',
             this.userController.getImage.bind(this.userController)
         )
+
+        this.router.get(
+            '/get/all',
+            this.userController.getAll.bind(this.userController)
+        )
     }
 }
