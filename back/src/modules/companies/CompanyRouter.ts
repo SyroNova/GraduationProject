@@ -1,7 +1,7 @@
 import { Router } from "express";
 import InterfaceRouter from "../../shared/InterfaceRouter.js";
 import CompanyController from "./CompanyController.js";
-import { validateRequestParams } from "../../middlewares/ValidateMiddleware.js";
+import { validateRequestBody, validateRequestParams } from "../../middlewares/ValidateMiddleware.js";
 
 export default class CompanyRouter implements InterfaceRouter{
     public router: Router;
@@ -15,14 +15,21 @@ export default class CompanyRouter implements InterfaceRouter{
 
     private routes(){
         this.router.post(
-            '/register'
-
+            '/register',
+            validateRequestBody(['NIT', 'name', 'password', 'location', 'description', 'role']),
+            this.companyController.register.bind(this.companyController)
         )
 
         this.router.get(
-            '/get/:id',
+            '/get/id/:id',
             validateRequestParams(['id']),
             this.companyController.getCompany.bind(this.companyController)
+        )
+
+        this.router.get(
+            '/get/nit/:nit',
+            validateRequestParams(['nit']),
+            this.companyController.getByNit.bind(this.companyController)
         )
     }
 }
