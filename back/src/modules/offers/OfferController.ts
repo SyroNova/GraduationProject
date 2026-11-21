@@ -57,10 +57,11 @@ export default class OfferController {
                 throw new HttpError("Limit invalid", 400);
             }
 
+
             const filterDTO: FilterOfferDTO = {
                 search: (req.query.search as string) ?? req.body?.search,
                 location: (req.query.location as string) ?? req.body?.location,
-                contractType: (req.query.contractType as any) ?? req.body?.contractType,
+                contractType: (req.query['contractType[]']) ?? req.body?.contractType,
                 salaryMin: req.query.salaryMin !== undefined
                     ? Number(req.query.salaryMin)
                     : (req.body?.salaryMin !== undefined ? Number(req.body.salaryMin) : undefined),
@@ -69,6 +70,8 @@ export default class OfferController {
                     : (req.body?.salaryMax !== undefined ? Number(req.body.salaryMax) : undefined),
                 skills: (req.query.skills as any) ?? req.body?.skills,
             };
+
+            //console.log(filterDTO)
 
             const response = await this.offerService.get(page, limit, idUser, filterDTO);
 
