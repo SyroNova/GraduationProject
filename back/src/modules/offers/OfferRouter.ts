@@ -27,6 +27,12 @@ export default class OfferRouter implements InterfaceRouter{
         )
 
         this.router.get(
+            '/get/company/:id',
+            validateRequestParams(['id']),
+            this.offerController.getAllCompany.bind(this.offerController)
+        )
+
+        this.router.get(
             '/get/:id',
             validateRequestParams(['id']),
             this.offerController.getOfferById.bind(this.offerController)

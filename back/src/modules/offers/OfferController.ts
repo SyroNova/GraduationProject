@@ -78,6 +78,26 @@ export default class OfferController {
         }
     }
 
+    public async getAllCompany(
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction
+    ){
+        try {
+            const idCompany = req.user?.id ?? Number(req.params.id)
+
+            if (Number.isNaN(idCompany)) {
+                throw new HttpError("Company Id invalid", 400);
+            }
+
+            const response = await this.offerService.getAllCompany(idCompany)
+
+            res.status(200).json(response)
+        } catch (error) {
+            next(error)
+        }
+    }
+
     public async getOfferById(
         req: Request,
         res: Response,

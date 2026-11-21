@@ -52,6 +52,20 @@ export default class OfferModel {
         return { result, total };
     }
 
+    public async getAllCompany(idCompany: number){
+        const query = `
+            SELECT
+                *
+            FROM offers
+            WHERE idCompany = ?
+            ORDER BY createdAt
+        `
+
+        const [result] = await this.db.execute<OfferDB[]>(query, [idCompany])
+
+        return result
+    }
+
     public async getById(id: number) {
         const query = `
             SELECT
