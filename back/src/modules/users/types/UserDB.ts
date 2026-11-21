@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import { DocumentType } from "./DocumentType.js";
-import RoleDB from "./RoleDB.js";
+import RoleDB from "../../../shared/RoleDB.js";
 
 export default interface UserDB extends RowDataPacket{
     idUser: number;
@@ -14,5 +14,9 @@ export default interface UserDB extends RowDataPacket{
     actualCity?: string;
     gender?: string;
     role: RoleDB | string;
+}
+
+export interface UserWithResumeDB extends UserDB{
+    idResume: number
 }
 
