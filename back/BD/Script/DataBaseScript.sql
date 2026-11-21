@@ -265,6 +265,197 @@ LOCK TABLES `offers` WRITE;
 INSERT INTO `offers` VALUES (1,1,'test1',12,15,'test','Bogota, Colombia','TEMPORAL',NULL,'2026-05-11 21:53:41'),(2,1,'Test 2',120000,150000,'hola','Bogota, Colombia','TEMPORAL',NULL,'2026-06-10 23:40:44'),(3,1,'test 3',130000,140000,'hey','Bucaramanga, Colombia','TEMPORAL',NULL,'2026-06-21 21:43:21'),(4,1,'test 4',150000,NULL,'ho','Bucara, Santander','TEMPORAL',NULL,'2026-06-21 21:44:46'),(5,1,'test 5',120000,NULL,'hre','Bu','TEMPORAL',NULL,'2026-06-21 21:48:18'),(6,1,'test horas',12,NULL,'test','aca','TEMPORAL',NULL,'2026-11-09 22:57:08');
 /*!40000 ALTER TABLE `offers` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `Offers_AFTER_INSERT` AFTER INSERT ON `offers` FOR EACH ROW BEGIN
+INSERT INTO Audit(
+    actorId,
+    actorType,
+
+    action,
+
+    entityType,
+    entityId,
+
+    oldValue,
+    newValue,
+
+    ipAddress,
+    userAgent
+)
+VALUES(
+    @audit_actor_id,
+    IFNULL(
+        @audit_actor_type,
+        'SYSTEM'
+    ),
+
+    'INSERT',
+
+    'OFFER',
+    NEW.idOffer,
+
+    NULL,
+
+    JSON_OBJECT(
+        'title', NEW.title,
+        'salaryMin', NEW.salaryMin,
+        'location', NEW.location,
+        'description', NEW.description
+    ),
+
+    IFNULL(
+        @audit_ip,
+        'UNKNOWN'
+    ),
+
+    IFNULL(
+        @audit_user_agent,
+        'UNKNOWN'
+    )
+);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `Offers_AFTER_UPDATE` AFTER UPDATE ON `offers` FOR EACH ROW BEGIN
+INSERT INTO Audit(
+    actorId,
+    actorType,
+
+    action,
+
+    entityType,
+    entityId,
+
+    oldValue,
+    newValue,
+
+    ipAddress,
+    userAgent
+)
+VALUES(
+    @audit_actor_id,
+    IFNULL(
+        @audit_actor_type,
+        'SYSTEM'
+    ),
+
+    'UPDATE',
+
+    'OFFER',
+    NEW.idOffer,
+
+    JSON_OBJECT(
+        'title', OLD.title,
+        'salaryMin', OLD.salaryMin,
+        'location', OLD.location,
+        'description', OLD.description
+    ),
+
+    JSON_OBJECT(
+        'title', NEW.title,
+        'salaryMin', NEW.salaryMin,
+        'location', NEW.location,
+        'description', NEW.description
+    ),
+
+    IFNULL(
+        @audit_ip,
+        'UNKNOWN'
+    ),
+
+    IFNULL(
+        @audit_user_agent,
+        'UNKNOWN'
+    )
+);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `Offers_AFTER_DELETE` AFTER DELETE ON `offers` FOR EACH ROW BEGIN
+INSERT INTO Audit(
+    actorId,
+    actorType,
+
+    action,
+
+    entityType,
+    entityId,
+
+    oldValue,
+    newValue,
+
+    ipAddress,
+    userAgent
+)
+VALUES(
+    @audit_actor_id,
+    IFNULL(
+        @audit_actor_type,
+        'SYSTEM'
+    ),
+
+    'DELETE',
+
+    'OFFER',
+    OLD.idOffer,
+
+    JSON_OBJECT(
+        'title', OLD.title,
+        'salaryMin', OLD.salaryMin,
+        'location', OLD.location,
+        'description', OLD.description
+    ),
+
+    NULL,
+
+    IFNULL(
+        @audit_ip,
+        'UNKNOWN'
+    ),
+
+    IFNULL(
+        @audit_user_agent,
+        'UNKNOWN'
+    )
+);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `offers_documents`
@@ -620,6 +811,196 @@ LOCK TABLES `user` WRITE;
 INSERT INTO `user` VALUES (5,'juan.tabares.pelaez@gmail.com','juan','109','CE','$2b$10$44Dg.S2GPD2ScyYCxMSi/OlyJeNOTGvLaC.PMr1DbFW2SQYLDbXNO','+573207964962','1999-06-21','Bucaramanga','NA',1),(28,'juanfehalo@outlook.es','Juan Tabares','1097182129','CC','$2b$10$d1gAmDA7od22vHmgPUrn/u1WulXbqoHMkLt7gpZ6wk8thV1aQKJPC','+573207964962','2004-04-19','Bucaramanga','NA',1);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_user_insert` AFTER INSERT ON `user` FOR EACH ROW BEGIN
+	INSERT INTO Audit(
+    actorId,
+    actorType,
+
+    action,
+
+    entityType,
+    entityId,
+
+    oldValue,
+    newValue,
+
+    ipAddress,
+    userAgent
+)
+VALUES(
+
+    @audit_actor_id,
+
+    IFNULL(
+        @audit_actor_type,
+        'SYSTEM'
+    ),
+
+    'INSERT',
+
+    'USER',
+
+    NEW.idUser,
+
+    NULL,
+
+    JSON_OBJECT(
+        'document', NEW.document,
+        'name', NEW.name,
+        'phone', NEW.phone
+    ),
+
+    IFNULL(
+        @audit_ip,
+        'UNKNOWN'
+    ),
+
+    IFNULL(
+        @audit_user_agent,
+        'UNKNOWN'
+    )
+);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_user_update` AFTER UPDATE ON `user` FOR EACH ROW BEGIN
+INSERT INTO Audit(
+    actorId,
+    actorType,
+
+    action,
+
+    entityType,
+    entityId,
+
+    oldValue,
+    newValue,
+
+    ipAddress,
+    userAgent
+)
+VALUES(
+    @audit_actor_id,
+    IFNULL(
+        @audit_actor_type,
+        'SYSTEM'
+    ),
+
+    'UPDATE',
+
+    'USER',
+    NEW.idUser,
+
+    JSON_OBJECT(
+        'document', OLD.document,
+        'name', OLD.name,
+        'phone', OLD.phone
+    ),
+
+    JSON_OBJECT(
+        'document', NEW.document,
+        'name', NEW.name,
+        'phone', NEW.phone
+    ),
+
+    IFNULL(
+        @audit_ip,
+        'UNKNOWN'
+    ),
+
+    IFNULL(
+        @audit_user_agent,
+        'UNKNOWN'
+    )
+);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_user_delete` AFTER DELETE ON `user` FOR EACH ROW BEGIN
+INSERT INTO Audit(
+    actorId,
+    actorType,
+
+    action,
+
+    entityType,
+    entityId,
+
+    oldValue,
+    newValue,
+
+    ipAddress,
+    userAgent
+)
+VALUES(
+    @audit_actor_id,
+    IFNULL(
+        @audit_actor_type,
+        'SYSTEM'
+    ),
+
+    'DELETE',
+
+    'USER',
+    OLD.idUser,
+
+    JSON_OBJECT(
+        'document', OLD.document,
+        'name', OLD.name,
+        'phone', OLD.phone
+    ),
+
+    NULL,
+
+    IFNULL(
+        @audit_ip,
+        'UNKNOWN'
+    ),
+
+    IFNULL(
+        @audit_user_agent,
+        'UNKNOWN'
+    )
+);
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `user_fav_offers`
@@ -705,6 +1086,66 @@ LOCK TABLES `work_experience` WRITE;
 INSERT INTO `work_experience` VALUES (4,1,'director técnico/directora técnica','2026-01-12',NULL,'ss',NULL);
 /*!40000 ALTER TABLE `work_experience` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'thesis'
+--
+/*!50003 DROP PROCEDURE IF EXISTS `sp_filter_offers` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_filter_offers`(
+    IN p_idUser INT,
+    IN p_search VARCHAR(255),
+    IN p_location VARCHAR(255),
+    IN p_contractType VARCHAR(255),
+    IN p_salaryMin INT,
+    IN p_salaryMax INT,
+    IN p_skills VARCHAR(255),
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    -- 1. Main paginated result set
+    SELECT 
+        o.*,
+        c.name AS companyName, 
+        c.location AS companyLocation,
+        (ufo.idUser IS NOT NULL) AS isFavorite
+    FROM offers o
+    INNER JOIN company c ON o.idCompany = c.idCompany
+    LEFT JOIN user_fav_offers ufo ON ufo.idOffer = o.idOffer AND ufo.idUser = p_idUser
+    WHERE (p_search IS NULL OR p_search = '' OR o.title LIKE CONCAT('%', p_search, '%') OR o.description LIKE CONCAT('%', p_search, '%') OR c.name LIKE CONCAT('%', p_search, '%') OR o.location LIKE CONCAT('%', p_search, '%'))
+      AND (p_location IS NULL OR p_location = '' OR o.location LIKE CONCAT('%', p_location, '%') OR c.location LIKE CONCAT('%', p_location, '%'))
+      AND (p_contractType IS NULL OR p_contractType = '' OR FIND_IN_SET(o.contractType, p_contractType) > 0)
+      AND (p_salaryMin IS NULL OR o.salaryMax >= p_salaryMin OR (o.salaryMax IS NULL AND o.salaryMin >= p_salaryMin))
+      AND (p_salaryMax IS NULL OR o.salaryMin <= p_salaryMax)
+      AND (p_skills IS NULL OR p_skills = '' OR o.title LIKE CONCAT('%', p_skills, '%') OR o.description LIKE CONCAT('%', p_skills, '%'))
+    ORDER BY o.createdAt DESC
+    LIMIT p_limit OFFSET p_offset;
+
+    -- 2. Total count for pagination metadata
+    SELECT COUNT(*) AS total
+    FROM offers o
+    INNER JOIN company c ON o.idCompany = c.idCompany
+    WHERE (p_search IS NULL OR p_search = '' OR o.title LIKE CONCAT('%', p_search, '%') OR o.description LIKE CONCAT('%', p_search, '%') OR c.name LIKE CONCAT('%', p_search, '%') OR o.location LIKE CONCAT('%', p_search, '%'))
+      AND (p_location IS NULL OR p_location = '' OR o.location LIKE CONCAT('%', p_location, '%') OR c.location LIKE CONCAT('%', p_location, '%'))
+      AND (p_contractType IS NULL OR p_contractType = '' OR FIND_IN_SET(o.contractType, p_contractType) > 0)
+      AND (p_salaryMin IS NULL OR o.salaryMax >= p_salaryMin OR (o.salaryMax IS NULL AND o.salaryMin >= p_salaryMin))
+      AND (p_salaryMax IS NULL OR o.salaryMin <= p_salaryMax)
+      AND (p_skills IS NULL OR p_skills = '' OR o.title LIKE CONCAT('%', p_skills, '%') OR o.description LIKE CONCAT('%', p_skills, '%'));
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -715,4 +1156,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-11-21 15:19:28
+-- Dump completed on 2026-11-21 15:23:53
