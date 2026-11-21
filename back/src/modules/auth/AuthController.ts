@@ -4,7 +4,7 @@ import AuthService from "./AuthService.js";
 export default class AuthController{
     constructor(private readonly authService: AuthService){}
 
-    public async login(
+    public async loginUser(
         req: Request, 
         res: Response,
         next: NextFunction
@@ -12,9 +12,25 @@ export default class AuthController{
         try {
             const { document, password } = req.body;
 
-            const response = await this.authService.login({document, password});
+            const response = await this.authService.loginUser({document, password});
             
             res.status(200).cookie("refreshToken", response.refreshToken, { httpOnly: true, secure: true, sameSite: true }).json({ accessToken: response.accessToken, role: response.role, idUser: response.idUser});
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    public async loginCompany(
+        req: Request, 
+        res: Response,
+        next: NextFunction
+    ): Promise<void>{
+        try {
+            const { NIT, password } = req.body;
+
+            const response = await this.authService.loginCompany({NIT, password});
+            
+            res.status(200).cookie("refreshToken", response.refreshToken, { httpOnly: true, secure: true, sameSite: true }).json({ accessToken: response.accessToken, role: response.role, idCompany: response.idCompany});
         } catch (error) {
             next(error);
         }
