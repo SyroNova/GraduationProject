@@ -36,7 +36,7 @@ export default class UserModel{
                 u.birthDate,
                 u.actualCity,
                 u.gender,
-                r.name role,
+                r.name role
             FROM user u
             INNER JOIN role r on r.idRole = u.idRole
             WHERE u.idUser = ?
