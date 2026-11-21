@@ -32,7 +32,7 @@ export default function DashboardHome(){
 
     const handleSearchSubmit = (e: React.SubmitEvent) => {
         e.preventDefault()
-        console.log(filters)
+        //console.log(filters)
         setAppliedFilters(filters)
         setPage(1)
     }
@@ -42,6 +42,8 @@ export default function DashboardHome(){
             try {
                 setLoading(true)
                 setError("")
+
+                console.log("ContractType:" + appliedFilters?.contractType)
 
                 const response = await axios.get<PaginatedResponse<Offer>>('/offers/get', {
                     params: {

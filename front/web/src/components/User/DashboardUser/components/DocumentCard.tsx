@@ -54,6 +54,7 @@ export default function DocumentCard({ document, ...props }: Readonly<Props>){
     const isEditing = props.isEditing
     const onDelete = props.onDelete
     
+    //TODO: PUT SECTION FOR DOWNLOADING THE DOCUMENT
 
     return (
         <Card className="h-100">
