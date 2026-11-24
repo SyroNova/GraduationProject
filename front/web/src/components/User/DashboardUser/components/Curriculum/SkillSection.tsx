@@ -80,6 +80,9 @@ export default function SkillSection({ idResume, skills, setCurriculum }: Readon
         }
     }
 
+    console.log(skills)
+    console.log(skills.filter(skill => skill === null))
+
     return (
         <>
             { loading ? 

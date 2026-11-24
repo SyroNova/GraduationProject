@@ -127,7 +127,8 @@ export default function SkillForm({ idResume, data, escoSkills, setCurriculum, o
             validationSchema={schema}
             onSubmit={async (values) => {
                 try {
-                    const response = await axios.patch(`/resume/patch/${idResume}/skill/${values.skill?.idSkill}`, {
+                    const response = await axios.patch(`/resume/patch/${idResume}/skill/${data.idSkill}`, {
+                        idSkill: values.skill?.idSkill,
                         level: values.level
                     })
 
@@ -137,7 +138,7 @@ export default function SkillForm({ idResume, data, escoSkills, setCurriculum, o
                         return {
                             ...prev,
                             skills: prev.skills.map(skill => 
-                                skill.idSkill === response.data.skill.idSkill ? response.data.skill : skill
+                                skill.idSkill === data.idSkill ? response.data.skill : skill
                             )
                         }
                     })

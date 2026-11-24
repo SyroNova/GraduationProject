@@ -12,6 +12,7 @@ import ProfessionalProfileSection from "./components/Curriculum/ProfessionalProf
 import PersonalDataSection from "./components/Curriculum/PersonalDataSection"
 import type MetadataResponse from "../../../types/Curriculum/Document"
 import DocumentSection from "./components/Curriculum/DocumentSection"
+import { isAxiosError } from "axios"
 
 export default function DashboardCurriculumView(){
     
@@ -83,7 +84,32 @@ export default function DashboardCurriculumView(){
             </Alert>
         )
     }
-    //TODO: IMPLEMENT EXPORT PDF
+
+    const handleExportPDF = async () => {
+        const printWindow = window.open('', '_blank')
+
+        if(!printWindow){
+            setError('Permite las ventanas emergentes para exportar tu hoja de vida.')
+            return;
+        }
+
+        try {
+            printWindow.document.title = "Generando hoja de vida..."
+            printWindow.document.body.innerHTML = '<p>Generando hoja de vida...<p>'
+
+            const response = await axios.get(`/resume/get/pdf/${1}`)
+
+            const blob = new Blob([response.data], {type: 'text/html'})
+            const url = URL.createObjectURL(blob)
+            
+            printWindow.location.href = url
+        } catch (error) {
+            printWindow.close()
+            if(isAxiosError(error)){
+                console.log(error.response?.data)
+            }
+        }
+    }
     return(
         <>
             {error && 
@@ -97,7 +123,7 @@ export default function DashboardCurriculumView(){
                     <p className="text-muted" style={{color: "var(--color-text-secondary)"}}>Gestiona tu informacion profesional</p>
                 </div>
                 <div className="d-flex align-items-center">
-                    <Button className="btn-light border-black me-4 d-flex align-items-center">
+                    <Button className="btn-light border-black me-4 d-flex align-items-center" onClick={handleExportPDF}>
                         <FiDownload className="me-2"/>
                         Exportar PDF
                     </Button>
