@@ -6,12 +6,16 @@ import ResumeSkillFactory from "./ResumeSkillFactory.js"
 import ResumeAcademicExFactory from "./ResumeAcademicExFactory.js"
 import ResumeProfessionalPFactory from "./ResumeProfessionalPFactory.js"
 import ResumeWorkExFactory from "./ResumeWorkExFactory.js"
+import ResumePreviewService from "../services/ResumePreviewService.js"
+import UserModel from "../../users/models/UserModel.js"
 
 export default class ResumeFactory{
     static readonly create = () => {
         const resumeModel = ResumeModelFactory.create()
         const resumeService = new ResumeService(resumeModel)
-        const resumeController = new ResumeController(resumeService)
+        const userModel = new UserModel()
+        const resumePreviewService = new ResumePreviewService(resumeModel, userModel)
+        const resumeController = new ResumeController(resumeService, resumePreviewService)
 
         const skillController = ResumeSkillFactory.create()
         const academicController = ResumeAcademicExFactory.create()
