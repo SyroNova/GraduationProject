@@ -40,6 +40,12 @@ export default class ResumeRouter implements InterfaceRouter{
             validateRequestParams(['id']),
             this.resumeController.getResume.bind(this.resumeController)
         )
+
+        this.router.get(
+            '/get/pdf/:id',
+            validateRequestParams(['id']),
+            this.resumeController.getPdfResume.bind(this.resumeController)
+        )
     }
 
     private routesSkill(){
@@ -59,7 +65,7 @@ export default class ResumeRouter implements InterfaceRouter{
         this.router.patch(
             '/patch/:id/skill/:idSkill',
             validateRequestParams(['id', 'idSkill']),
-            validateUpdateRequest(['level']),
+            validateUpdateRequest(['level', 'idSkill']),
             this.skillsController.updateSkill.bind(this.skillsController)
         )
 
