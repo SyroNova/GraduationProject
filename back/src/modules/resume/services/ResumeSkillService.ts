@@ -62,7 +62,7 @@ export default class ResumeSkillService{
                     throw new HttpError("Error updating skill from resume", 500)
                 }
 
-                const skillUpdated = await skill.getOne(idResume, idSkill)
+                const skillUpdated = await skill.getOne(idResume, values[0])
 
                 return { message: "Skill updated successfully", skill: skillUpdated }
             }
