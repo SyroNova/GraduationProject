@@ -1,4 +1,3 @@
-import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
 import '../../css/LandingPage/HeadBar.css';
@@ -10,17 +9,17 @@ function HeadBar(){
 
     return (
         <Navbar className="my-navbar">
-        <Container>
-            <Navbar.Brand href="#home" className="text-white fs-2">
-                <img src={logo} alt="logo" style={{ height: "80px", width: "80px", objectFit: "cover" }}  className="img-fluid" />
-                {" "}
-                UrNextJob
-            </Navbar.Brand>
-            <Navbar.Toggle />
-            <Navbar.Collapse className="justify-content-end">
-            <Button variant="outline-light" onClick={() => navigate("/enter")}>Iniciar Sesión</Button>
-            </Navbar.Collapse>
-        </Container>
+            <div className='d-flex justify-content-around' style={{width: "99%"}}>
+                <Navbar.Brand href="#home" className="text-white fs-2">
+                    <img src={logo} alt="logo" style={{ height: "80px", width: "80px", objectFit: "cover" }}  className="img-fluid" />
+                    {" "}
+                    UrNextJob
+                </Navbar.Brand>
+                <Navbar.Toggle />
+                <Navbar.Collapse className="justify-content-end">
+                <Button variant="outline-light" onClick={() => navigate("/enter")}>Iniciar Sesión</Button>
+                </Navbar.Collapse>
+            </div>
         </Navbar>
     )
 }

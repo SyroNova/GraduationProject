@@ -10,7 +10,8 @@ export default function Footer(){
                 <div className="d-flex flex-column mt-4" style={{ width: '18rem'}}>
                     <p className="fs-5 text-white">Enlaces</p>
                     <p className="fs-5 fw-bold" style={{color: 'var(--color-text-secondary)'}}>Preguntas frecuentes</p>
-                    <p className="fs-6" style={{color: 'var(--color-text-secondary)'}}>Terminos y condiciones</p>                        <p className="fs-6" style={{color: 'var(--color-text-secondary)'}}>Politica de privacidad</p>
+                    <p className="fs-6" style={{color: 'var(--color-text-secondary)'}}>Terminos y condiciones</p>                        
+                    <p className="fs-6" style={{color: 'var(--color-text-secondary)'}}>Politica de privacidad</p>
                 </div>
                 <div className="d-flex flex-column mt-4" style={{ width: '18rem'}}>
                     <p className="fs-5 text-white">Lineas de ayuda</p>
