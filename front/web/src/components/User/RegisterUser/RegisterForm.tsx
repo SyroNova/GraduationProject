@@ -19,7 +19,7 @@ type Props = {
 }
 
 export default function RegisterForm({onNext}: Readonly<Props>){
-    const { setPhone } = UseSms()
+    const { setDocument } = UseSms()
     const { setAuth } = UseAuth()
     const { setResume } = UseResume()
     
@@ -62,7 +62,7 @@ export default function RegisterForm({onNext}: Readonly<Props>){
                                     withCredentials: true
                                 }
                             );
-                            setPhone(values.phone);
+                            setDocument(values.document);
 
                             const accessToken = response?.data?.accessToken;
                             const role = response?.data?.role;
@@ -133,7 +133,7 @@ export default function RegisterForm({onNext}: Readonly<Props>){
                                         isInvalid={touched.documentType && !!errors.documentType}
                                         style={{ maxWidth: '80px' }}
                                     >
-                                        <option value="">Tipo</option>
+                                        <option value="" disabled>Tipo</option>
                                         <option value="CC">CC</option>
                                         <option value="TI">TI</option>
                                         <option value="CE">CE</option>
