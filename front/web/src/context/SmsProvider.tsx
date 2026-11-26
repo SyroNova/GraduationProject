@@ -1,17 +1,17 @@
 import { createContext, useState } from "react";
 
 type SmsContextType = {
-    phone: string | null;
-    setPhone: React.Dispatch<React.SetStateAction<string | null>>;
+    document: string | null;
+    setDocument: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 const SmsContext = createContext<SmsContextType | null> (null);
 
 export const SmsProvider = ({ children }: {children: React.ReactNode}) => {
-    const [phone, setPhone] = useState<string | null>(null);
+    const [document, setDocument] = useState<string | null>(null);
 
     return (
-        <SmsContext.Provider value={{ phone, setPhone}}>
+        <SmsContext.Provider value={{ document, setDocument}}>
             {children}
         </SmsContext.Provider>
     )
