@@ -16,7 +16,7 @@ type Props = {
 }
 
 export default function VerifyRegisterSMS({onBack}: Readonly<Props>){
-    const { phone } = UseSms()
+    const { document } = UseSms()
 
     const [smsCode, setSmsCode] = useState("");
     const [sent, setSent] = useState(false);
@@ -50,7 +50,7 @@ export default function VerifyRegisterSMS({onBack}: Readonly<Props>){
     const handleSend = async () => {
         // Recordar cambiar en el backend el sms, para que cambie a isValidated a 1
         try {
-            const response = await axios.post(CODE_SEND_URL, JSON.stringify({ phone: phone ?? 325 }), { // cambiar por phone una vez hago un registro normal y recordar hacer protected routes
+            const response = await axios.post(CODE_SEND_URL, JSON.stringify({ document: document ?? 109 }), { // cambiar por phone una vez hago un registro normal y recordar hacer protected routes
                 headers: {"Content-Type": "application/json"},
                 withCredentials: true
             });
@@ -77,7 +77,7 @@ export default function VerifyRegisterSMS({onBack}: Readonly<Props>){
         }
         
         try {
-            const verify = await axios.post(CODE_VERIFY_URL, JSON.stringify({ phone, code: smsCode }), {
+            const verify = await axios.post(CODE_VERIFY_URL, JSON.stringify({ document, code: smsCode }), {
                 headers: {"Content-Type": "application/json"},
                 withCredentials: true
             });
