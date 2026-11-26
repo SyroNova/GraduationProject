@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
+import { Alert, Button, Card, Col, Form, InputGroup, Modal, Row, Spinner } from "react-bootstrap";
 import UseAuth from "../../../hooks/UseAuth";
 import { useEffect, useState, type ChangeEvent } from "react";
 import type User from "../../../types/User";
@@ -11,20 +11,45 @@ import { getCroppedImage } from "../../../utils/GetCroppedImage";
 import { isAxiosError } from "axios";
 import UseProfileImage from "../../../hooks/UseProfileImage";
 import { useNavigate } from "react-router-dom";
+import { IoEyeOff } from "react-icons/io5";
+import { IoMdEye } from "react-icons/io";
+import { Formik } from "formik";
+import * as yup from "yup"
 
 
 export default function DashboardMe(){
     const { auth } = UseAuth()
     const [me, setMe] = useState<User | null>(null)
+
     const [loading, setLoading] = useState(true)
+
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
     const [zoom, setZoom] = useState(1)
-    const [show, setShow] = useState(false)
+    const [modalShowProfile, setmodalShowProfile] = useState(false)
     const [image, setImage] = useState<string | null>(null)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
+
     const [saved, setSaved] = useState(false)
+
+    const [error, setError] = useState("")
+
     const { setProfileImage } = UseProfileImage()
+
     const navigate = useNavigate()
+
+    const [showModalPassword, setShowModalPassword] = useState(false)
+    
+    const [showPasswords, setShowPasswords] = useState({
+        currentPassword: false,
+        newPassword: false,
+        confirmPassword: false
+    })
+
+    const schema = yup.object().shape({
+        currentPassword: yup.string().required("Porfavor ingrese su contraseña actual"),
+        newPassword: yup.string().required("Porfavor ingrese la nueva contraseña"),
+        confirmPassword: yup.string().oneOf([yup.ref('newPassword')], "Las contraseñas no coinciden").required("Porfavor ingrese la contraseña nuevamente")
+    })
 
     const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -55,10 +80,10 @@ export default function DashboardMe(){
     }, [auth?.id])
 
     const items = [
-        { data: `${me?.documentType} ${me?.document}`, icon: "document"},
-        { data: me?.email, icon: "email"},
-        { data: me?.phone, icon: "phone"},
-        { data: me?.actualCity, icon: "location"}
+        { id: 1, data: `${me?.documentType} ${me?.document}`, icon: "document"},
+        { id: 2, data: me?.email, icon: "email"},
+        { id: 3, data: me?.phone, icon: "phone"},
+        { id: 4, data: me?.actualCity, icon: "location"}
     ]
 
     const icons = {
@@ -82,7 +107,7 @@ export default function DashboardMe(){
             await axios.put("/users/image", formData)
 
             setProfileImage(URL.createObjectURL(croppedImage))
-            setShow(false)
+            setmodalShowProfile(false)
             setSaved(true)
 
             setTimeout(() => {
@@ -96,6 +121,14 @@ export default function DashboardMe(){
             }
         }
     }
+
+    const resetPasswordVisibility = () => {
+        setShowPasswords({
+            currentPassword: false,
+            newPassword: false,
+            confirmPassword: false
+        });
+    };
 
     return (
         <>
@@ -112,10 +145,10 @@ export default function DashboardMe(){
                     <hr className="mt-0"/>
                     <div className="ms-5">
                         <Col className="d-flex flex-column gap-3">
-                            {items.map((item, index) => {
+                            {items.map((item) => {
                                 const Icon = icons[item.icon as keyof typeof icons]
                                 return (
-                                    <Row key={index}>
+                                    <Row key={item.id}>
                                         <Col>
                                             <Card style={{width: "90%", backgroundColor: "rgb(241, 245, 249)"}}>
                                                 <Card.Body>
@@ -136,21 +169,18 @@ export default function DashboardMe(){
                             })}
                         </Col>
                         <h1 className="mt-5">Acciones rapidas</h1>
-                        <Col className="d-flex flex-column gap-4 mt-4">
+                        <Col className="d-flex flex-column gap-4 mt-4" style={{width: "90%"}}>
                             <Row>
-                                <Col>
-                                    <Button variant="light" className="fs-4" style={{width: "80%"}} onClick={() => navigate('/dashboard/user/curriculum')}>Ver hoja de vida</Button>
+                                <Col xs={6}>
+                                    <Button variant="light" className="fs-4 w-100" onClick={() => navigate('/dashboard/user/curriculum')}>Ver hoja de vida</Button>
                                 </Col>
-                                <Col>
-                                    <Button variant="light" className="fs-4" style={{width: "80%"}} onClick={() => setShow(true)} >Añadir foto de perfil</Button>
+                                <Col xs={6}>
+                                    <Button variant="light" className="fs-4 w-100" onClick={() => setmodalShowProfile(true)} >Añadir foto de perfil</Button>
                                 </Col>
                             </Row>
                             <Row>
-                                <Col>
-                                    <Button variant="light" className="fs-4" style={{width: "80%"}}>Editar hoja de vida</Button>
-                                </Col>
-                                <Col>   
-                                    <Button variant="light" className="fs-4" style={{width: "80%"}}>Cambiar contraseña</Button>
+                                <Col xs={6}>   
+                                    <Button variant="light" onClick={() => setShowModalPassword(true)} className="fs-4 w-100" >Cambiar contraseña</Button>
                                 </Col>
                             </Row>
                         </Col>
@@ -158,8 +188,9 @@ export default function DashboardMe(){
                 </>
             }
             <Modal
-                show={show}
-                onHide={() => setShow(false)}
+                show={modalShowProfile}
+                onHide={() => setmodalShowProfile(false)}
+                backdrop="static"
                 centered
                 size="lg"
             >
@@ -212,9 +243,156 @@ export default function DashboardMe(){
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShow(false)}>Cancelar</Button>
+                    <Button variant="secondary" onClick={() => setmodalShowProfile(false)}>Cancelar</Button>
                     <Button variant="primary" disabled={!image} onClick={handleSaveImage}>Guardar imagen</Button>
                 </Modal.Footer>
+            </Modal>
+            <Modal
+                show={showModalPassword}
+                onHide={() => setShowModalPassword(false)}
+                backdrop="static"
+                centered
+                onExited={resetPasswordVisibility}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Cambiar contraseña</Modal.Title>
+                </Modal.Header>
+                <Formik
+                    validationSchema={schema}
+                    onSubmit={ async (values) => {
+                        try {
+                            await axios.patch('/users/change-password', {
+                                document: me?.document,
+                                currentPassword: values.currentPassword,
+                                newPassword: values.newPassword
+                            })
+
+                            setShowModalPassword(false)
+
+                            resetPasswordVisibility()
+
+                            setSaved(true)
+
+                            setTimeout(() => {
+                                setSaved(false)
+                            }, 3000)
+                        } catch (error) {
+                            if(isAxiosError(error)){
+                                console.log(error.response?.data)
+                                setError(error.response?.data.message)
+                            }
+                            
+
+                            setTimeout(() => {
+                                setError("")
+                            }, 3000)
+                        }
+                    }}
+                    initialValues={{
+                        currentPassword: "",
+                        newPassword: "",
+                        confirmPassword: ""
+                    }}
+                >{({ handleSubmit, handleChange, handleBlur, values, touched, errors, isValid }) => (
+                    <Form onSubmit={handleSubmit}>
+                        <Modal.Body>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Contraseña actual</Form.Label>
+                                <InputGroup>
+                                    <Form.Control 
+                                        type={showPasswords.currentPassword ? "text" : "password"}
+                                        name="currentPassword"
+                                        value={values.currentPassword}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.currentPassword && !!errors.currentPassword}
+                                    />
+                                    <Button 
+                                        type="button" 
+                                        id="showPassword" 
+                                        onClick={() => setShowPasswords(prev => ({
+                                            ...prev,
+                                            "currentPassword": !prev.currentPassword
+                                        }))}
+                                    >
+                                        {(!showPasswords.currentPassword ? 
+                                            <IoEyeOff color="black" /> 
+                                            : 
+                                            <IoMdEye color="black" />
+                                        )}
+                                    </Button>
+                                    <Form.Control.Feedback type="invalid">{errors.currentPassword}</Form.Control.Feedback>
+                                </InputGroup>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Nueva contraseña </Form.Label>
+                                <InputGroup>
+                                    <Form.Control 
+                                        type={showPasswords.newPassword ? "text" : "password"}
+                                        name="newPassword"
+                                        value={values.newPassword}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.newPassword && !!errors.newPassword}
+                                    />
+                                    <Button 
+                                        type="button" 
+                                        id="showPassword" 
+                                        onClick={() => setShowPasswords(prev => ({
+                                            ...prev,
+                                            "newPassword": !prev.newPassword
+                                        }))}
+                                    >
+                                        {(!showPasswords.newPassword ? 
+                                            <IoEyeOff color="black" /> 
+                                            :
+                                            <IoMdEye color="black" />
+                                        )}
+                                    </Button>
+                                    <Form.Control.Feedback type="invalid">{errors.newPassword}</Form.Control.Feedback>
+                                </InputGroup>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Confirmar contraseña nueva</Form.Label>
+                                <InputGroup>
+                                    <Form.Control 
+                                        type={showPasswords.confirmPassword ? "text" : "password"}
+                                        name="confirmPassword"
+                                        value={values.confirmPassword}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.confirmPassword && !!errors.confirmPassword}
+                                    />
+                                    <Button 
+                                        type="button" 
+                                        id="showPassword" 
+                                        onClick={() => setShowPasswords(prev => ({
+                                            ...prev,
+                                            "confirmPassword": !prev.confirmPassword
+                                        }))}
+                                    >
+                                        {(!showPasswords.confirmPassword ? 
+                                            <IoEyeOff color="black" /> 
+                                            : 
+                                            <IoMdEye color="black" />
+                                        )}
+                                    </Button>
+                                    <Form.Control.Feedback type="invalid">{errors.confirmPassword}</Form.Control.Feedback>
+                                </InputGroup>
+                            </Form.Group>
+                            {error !== "" && (
+                                <Alert variant="danger" className="mt-3">
+                                    {error}
+                                </Alert>
+                            )}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={() => setShowModalPassword(false)}>Cancelar</Button>
+                            <Button type="submit" variant="primary" disabled={!isValid}>Guardar imagen</Button>
+                        </Modal.Footer>
+                    </Form>
+                )}
+                </Formik>
             </Modal>
             {saved && (
                 <Alert variant="success" className="mt-3 ms-5" style={{width: "90%"}}>
